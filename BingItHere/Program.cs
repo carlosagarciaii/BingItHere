@@ -12,7 +12,8 @@ namespace BingItHere
             Console.WriteLine("Hello World!");
             CoreTools.CoreTools coreTools = new CoreTools.CoreTools();
 
-            coreTools.CreateSession("ff");
+            coreTools.OpenBrowser("ff");
+            coreTools.NavTo("http://www.ltaat.com");
 
         }
     }

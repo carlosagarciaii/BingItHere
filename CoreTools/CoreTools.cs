@@ -5,6 +5,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.IE;
 using OpenQA.Selenium.Edge;
 using System.IO;
+using System.Threading;
 
 
 namespace CoreTools
@@ -12,8 +13,8 @@ namespace CoreTools
     public class CoreTools
     {
 
-        private IWebDriver MyWebDriver { get; set; }
-        private string MyBrowserName { get; set; }
+        private IWebDriver Driver { get; set; }
+        private string BrowserName { get; set; }
         private string DriverFileName { get; set; }
         private string DriverFilePath { get; set; }
 
@@ -30,7 +31,7 @@ namespace CoreTools
         private void SetDriverFileName()
         {
 
-            switch (MyBrowserName.ToLower())
+            switch (BrowserName.ToLower())
             {
                 case "ff":
                     DriverFileName = CTConstants.FIREFOX_DRIVER_NAME;
@@ -66,46 +67,46 @@ namespace CoreTools
 
         /// <summary>
         /// Returns a String for the full path to the Driver File
-        /// <para>driverFileName = The name of the Driver File (IE: Geckodriver.exe)</para>
+        /// <para>DriverFileName = The name of the Driver File (IE: Geckodriver.exe)</para>
         /// </summary>
         /// <param name="driverFileName"></param>
         /// <returns></returns>
-        private string SetDriverFilePath()
+        private void SetDriverFilePath()
         {
 
-            bool isFoundDriverFilePath = false;
+            bool isFoundDriverDirPath = false;
             string fullDriverFilePath;
 
-            foreach (string DriverFilePath in CTConstants.DEFAULT_DRIVER_DIRECTORIES)
+            foreach (string driverDirPathItem in CTConstants.DEFAULT_DRIVER_DIRECTORIES)
             {
-                if (Directory.Exists(DriverFilePath))
+                if (Directory.Exists(driverDirPathItem))
                 {
-                    isFoundDriverFilePath = true;
+                    isFoundDriverDirPath = true;
                     Console.WriteLine($"Driver Path Found:\t{DriverFilePath}");
-                    fullDriverFilePath = DriverFilePath + "/" + DriverFileName;
+                    fullDriverFilePath = driverDirPathItem + "/" + DriverFileName;
 
                     if (File.Exists(fullDriverFilePath))
                     {
                         Console.WriteLine($"Driver File Found:\t{fullDriverFilePath}");
-                        return DriverFilePath;
+                        DriverFilePath = driverDirPathItem + "/";
+                        return;
                     }
                 }
             }
-            if (!isFoundDriverFilePath) throw new Exception("Driver Path Cannot Be Found");
+            if (!isFoundDriverDirPath) throw new Exception("EXCEPTION:\n\tDriver Directory Cannot Be Found");
 
-            throw new Exception("Driver File Cannot Be Found");
-
+            throw new Exception("EXCEPTION:\n\tDriver File Cannot Be Found");
         }
 
         public void OpenBrowser(string browserName)
         {
-            MyBrowserName = browserName;
+            BrowserName = browserName;
 
             SetDriverFileName();
 
             SetDriverFilePath();
 
-
+            Driver = CreateSession();
 
 
         }
@@ -120,11 +121,11 @@ namespace CoreTools
         /// </summary>
         /// <param name="browserName"></param>
         /// <returns></returns>
-        private IWebDriver CreateSession(string browserName)
+        private IWebDriver CreateSession()
         {
 
 
-            switch (MyBrowserName.ToLower())
+            switch (BrowserName.ToLower())
             {
                 case "ff":
                     return new FirefoxDriver(DriverFilePath);
@@ -152,12 +153,43 @@ namespace CoreTools
 
         /// <summary>
         /// Navigates to the specified URL
-        /// <para>goToURL = The URL to navigate to.</para>
+        /// <para><br>goToURL = The URL to navigate to.</br>
+        /// <br>retryNumber = Number of Times to Retry loading the page (Default 0)</br>
+        /// <br>waitInSec = The number of seconds to wait before reloading the page.(Default 20) </br></para>
         /// </summary>
         /// <param name="goToURL"></param>
-        public void NavTo(string goToURL)
+        /// <param name="retryNumbers"></param>
+        /// <param name="waitInSec"></param>
+        public void NavTo(string goToURL,int retryNumbers = 0,int waitInSec = 20)
         {
-            throw new Exception("Not Implemented");
+            string ReadyState = "";
+            Driver.Url = goToURL;
+            for (int retryCount = retryNumbers + 1; retryCount >= 0; retryCount--)
+            {
+                Driver.Navigate();
+
+                for (int i = 0; i < waitInSec; i++)
+                {
+                    try
+                    {
+                        Thread.Sleep(1000);
+                        ReadyState = (string)((IJavaScriptExecutor)Driver).ExecuteScript("return document.readyState;");
+                        Console.WriteLine(ReadyState);
+                        if (ReadyState.ToLower() == "complete") break;
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception($"\nEXCEPTION HAS OCCURRRED\n\t{e}");
+                    }
+
+                }
+                if (ReadyState.ToLower() == "complete") break;
+            }
+
+            if (ReadyState.ToLower() != "complete") throw new Exception($"\nEXCEPTION:\n\tFailed to Load Page {goToURL}");
+            Console.WriteLine($"Success - Navigated to:\t{Driver.Url.ToString()}");
+
+
         }
 
 
