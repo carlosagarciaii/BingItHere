@@ -10,5 +10,11 @@ namespace CoreTools
         public const string CHROME_DRIVER_NAME = "chromedriver.exe";
         public const string IE_DRIVER_NAME = "IEDriverServer.exe";
         public const string MSEDGE_DRIVER_NAME = "msedgedriver.exe";
+        public static readonly string[] DEFAULT_DRIVER_DIRECTORIES =  { "C:/ProgramData/SeleniumDrivers",
+                                                                        "./Drivers",
+                                                                        "../../../Drivers",
+                                                                        "../../Drivers",
+                                                                        "../Drivers"
+        };
     }
 }
