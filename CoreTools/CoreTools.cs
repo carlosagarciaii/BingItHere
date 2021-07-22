@@ -19,6 +19,12 @@ namespace CoreTools
         private string DriverFilePath { get; set; }
 
 
+
+        //  ---------------------------------------------------------------
+        //  CREATING A SESSION
+        //  ---------------------------------------------------------------
+        //  ---------------------------------------------------------------
+
         /// <summary>
         /// <para>Returns a String for the filename of the WebDriver</para>
         /// <para>browserName = The name of the browser
@@ -82,12 +88,12 @@ namespace CoreTools
                 if (Directory.Exists(driverDirPathItem))
                 {
                     isFoundDriverDirPath = true;
-                    Console.WriteLine($"Driver Path Found:\t{DriverFilePath}");
+                    Logger.LogSomething($"Driver Path Found:\t{DriverFilePath}");
                     fullDriverFilePath = driverDirPathItem + "/" + DriverFileName;
 
                     if (File.Exists(fullDriverFilePath))
                     {
-                        Console.WriteLine($"Driver File Found:\t{fullDriverFilePath}");
+                        Logger.LogSomething($"Driver File Found:\t{fullDriverFilePath}");
                         DriverFilePath = driverDirPathItem + "/";
                         return;
                     }
@@ -98,6 +104,17 @@ namespace CoreTools
             throw new Exception("EXCEPTION:\n\tDriver File Cannot Be Found");
         }
 
+
+        /// <summary>
+        /// Opens the browser session. 
+        /// <para><br>browserName = the name of the browser to open</br>
+        /// <br>-Options:</br>
+        /// <br>---FireFox, FF</br>
+        /// <br>---Google, Chrome</br>
+        /// <br>---IE, IExplore</br>
+        /// <br>---Edge, MSEdge</br></para>
+        /// </summary>
+        /// <param name="browserName"></param>
         public void OpenBrowser(string browserName)
         {
             BrowserName = browserName;
@@ -151,6 +168,12 @@ namespace CoreTools
         }
 
 
+        //  ---------------------------------------------------------------
+        //  Navigating To pages
+        //  ---------------------------------------------------------------
+        //  ---------------------------------------------------------------
+
+
         /// <summary>
         /// Navigates to the specified URL
         /// <para><br>goToURL = The URL to navigate to.</br>
@@ -174,7 +197,7 @@ namespace CoreTools
                     {
                         Thread.Sleep(1000);
                         ReadyState = (string)((IJavaScriptExecutor)Driver).ExecuteScript("return document.readyState;");
-                        Console.WriteLine(ReadyState);
+                        Logger.LogSomething(ReadyState);
                         if (ReadyState.ToLower() == "complete") break;
                     }
                     catch (Exception e)
@@ -187,9 +210,56 @@ namespace CoreTools
             }
 
             if (ReadyState.ToLower() != "complete") throw new Exception($"\nEXCEPTION:\n\tFailed to Load Page {goToURL}");
-            Console.WriteLine($"Success - Navigated to:\t{Driver.Url.ToString()}");
+            Logger.LogSomething($"Success - Navigated to:\t{Driver.Url.ToString()}");
 
 
+        }
+
+
+        //  ---------------------------------------------------------------
+        //  Find Elements (FE)
+        //  ---------------------------------------------------------------
+        //  ---------------------------------------------------------------
+
+
+        public IWebElement FindElement(string elementLocator,string locatorStrategy = "xpath",bool waitForElement = true,int waitTimeSec = 20)
+        {
+            By locator;
+            switch (locatorStrategy.ToLower())
+            {
+                case "xpath":
+                        locator = By.XPath(elementLocator);
+                        break;
+                case "css":
+                case "cssselector":
+                    locator = By.CssSelector(elementLocator);
+                    break;
+                case "id":
+                    locator = By.Id(elementLocator);
+                    break;
+                default:
+                    throw new Exception($"EXCEPTION\tLOCATOR ERROR\nError:\tFE00001\n\tThe Locator Stragety Provided does not match a recognized strategy.\n\tLocator Strategy Provided:\t{locatorStrategy}");
+                    
+            }
+
+            int waitLoopCounter = (waitTimeSec < 1) ? 1 : waitTimeSec;
+            for (int waitCount = waitLoopCounter; waitCount > 0; waitCount--)
+            {
+                Thread.Sleep(1000);
+                try
+                {
+                    Driver.FindElement(locator);
+                }
+                catch
+                {
+
+                    Logger.LogSomething("Locator Not Found");
+
+                }
+            }
+
+
+            throw new Exception("Not Implemented");
         }
 
 
