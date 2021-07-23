@@ -6,7 +6,7 @@ namespace CoreTools
 {
     public class Logger
     {
-        public static void LogSomething(string message)
+        public static void Write(string message)
         {
             Console.WriteLine(message);
         }

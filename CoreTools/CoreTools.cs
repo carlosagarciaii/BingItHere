@@ -64,7 +64,9 @@ namespace CoreTools
                     DriverFileName = CTConstants.MSEDGE_DRIVER_NAME;
                     break;
                 default:
-                    throw new Exception("The Browser Provided does not match an acceptable value.");
+                    string LogMsg = "The Browser Provided does not match an acceptable value.";
+                    Logger.Write(LogMsg);
+                    throw new Exception(LogMsg);
 
             }
 
@@ -88,12 +90,12 @@ namespace CoreTools
                 if (Directory.Exists(driverDirPathItem))
                 {
                     isFoundDriverDirPath = true;
-                    Logger.LogSomething($"Driver Path Found:\t{DriverFilePath}");
+                    Logger.Write($"Driver Path Found:\t{DriverFilePath}");
                     fullDriverFilePath = driverDirPathItem + "/" + DriverFileName;
 
                     if (File.Exists(fullDriverFilePath))
                     {
-                        Logger.LogSomething($"Driver File Found:\t{fullDriverFilePath}");
+                        Logger.Write($"Driver File Found:\t{fullDriverFilePath}");
                         DriverFilePath = driverDirPathItem + "/";
                         return;
                     }
@@ -117,6 +119,7 @@ namespace CoreTools
         /// <param name="browserName"></param>
         public void OpenBrowser(string browserName)
         {
+            Logger.Write("Opening Browser");
             BrowserName = browserName;
 
             SetDriverFileName();
@@ -162,7 +165,9 @@ namespace CoreTools
                 case "msedge":
                     return new EdgeDriver(DriverFilePath);
                 default:
-                    throw new Exception("Unable to Locate WebDriver");
+                    string LogMsg = "Unable to Locate WebDriver";
+                    Logger.Write(LogMsg);
+                    throw new Exception(LogMsg);
             }
 
         }
@@ -197,12 +202,14 @@ namespace CoreTools
                     {
                         Thread.Sleep(1000);
                         ReadyState = (string)((IJavaScriptExecutor)Driver).ExecuteScript("return document.readyState;");
-                        Logger.LogSomething(ReadyState);
+                        Logger.Write(ReadyState);
                         if (ReadyState.ToLower() == "complete") break;
                     }
                     catch (Exception e)
                     {
-                        throw new Exception($"\nEXCEPTION HAS OCCURRRED\n\t{e}");
+                        string LogMsg = $"\nEXCEPTION HAS OCCURRRED\n\t{e}";
+                        Logger.Write(LogMsg);
+                        throw new Exception(LogMsg);
                     }
 
                 }
@@ -210,7 +217,7 @@ namespace CoreTools
             }
 
             if (ReadyState.ToLower() != "complete") throw new Exception($"\nEXCEPTION:\n\tFailed to Load Page {goToURL}");
-            Logger.LogSomething($"Success - Navigated to:\t{Driver.Url.ToString()}");
+            Logger.Write($"Success - Navigated to:\t{Driver.Url.ToString()}");
 
 
         }
@@ -224,6 +231,8 @@ namespace CoreTools
 
         public IWebElement FindElement(string elementLocator,string locatorStrategy = "xpath",bool waitForElement = true,int waitTimeSec = 20)
         {
+            string LogMsg;
+            IWebElement returnElement = null;
             By locator;
             switch (locatorStrategy.ToLower())
             {
@@ -237,8 +246,13 @@ namespace CoreTools
                 case "id":
                     locator = By.Id(elementLocator);
                     break;
+                case "name":
+                    locator = By.Name(elementLocator);
+                    break;
                 default:
-                    throw new Exception($"EXCEPTION\tLOCATOR ERROR\nError:\tFE00001\n\tThe Locator Stragety Provided does not match a recognized strategy.\n\tLocator Strategy Provided:\t{locatorStrategy}");
+                    LogMsg = $"EXCEPTION\tLOCATOR ERROR\nError:\tFE00001\n\tThe Locator Stragety Provided does not match a recognized strategy.\n\tLocator Strategy Provided:\t{locatorStrategy}";
+                    Logger.Write(LogMsg);
+                    throw new Exception(LogMsg);
                     
             }
 
@@ -248,18 +262,26 @@ namespace CoreTools
                 Thread.Sleep(1000);
                 try
                 {
-                    Driver.FindElement(locator);
+                    returnElement = Driver.FindElement(locator);
+                    break;
                 }
                 catch
                 {
 
-                    Logger.LogSomething("Locator Not Found");
+                    Logger.Write("Locator Not Found");
 
                 }
             }
 
-
-            throw new Exception("Not Implemented");
+            if (returnElement == null)
+            {
+                LogMsg = $"Unable to Locate Element:\t{locator} using strategy {locatorStrategy}.";
+                Logger.Write(LogMsg);
+                throw new Exception(LogMsg);
+            }
+            else { 
+                return returnElement;
+            }
         }
 
 
