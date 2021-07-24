@@ -34,7 +34,7 @@ namespace BingItHere
             coreTools.FindElements("//a");
             Console.WriteLine($"Elements Found:\t{coreTools.Elements.Count.ToString()}");
             Console.WriteLine("Click Element");
-            element.Click();
+            coreTools.Click();
 
             Thread.Sleep(10000);
             coreTools.CloseBrowser();

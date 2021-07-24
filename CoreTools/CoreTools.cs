@@ -501,7 +501,19 @@ namespace CoreTools
         //  ---------------------------------------------------------------
 
 
+        public void Click()
+        {
+            try
+            {
+                Logger.Write("Clicking on Element.");
+                Element.Click();
+            }
+            catch
+            {
+                Logger.Write("Cannot Click with Selenium.");
+            }
 
+        }
 
     }
 }
