@@ -6,13 +6,20 @@ using OpenQA.Selenium.IE;
 using OpenQA.Selenium.Edge;
 using System.IO;
 using System.Threading;
-
+using System.Collections.Generic;
 
 namespace CoreTools
 {
     public class CoreTools
     {
 
+        //  ---------------------------------------------------------------
+        //  GENERAL
+        //  ---------------------------------------------------------------
+        //  ---------------------------------------------------------------
+
+
+        string LogMsg;
         private IWebDriver Driver { get; set; }
         private string BrowserName { get; set; }
         private string DriverFileName { get; set; }
@@ -229,32 +236,40 @@ namespace CoreTools
         //  ---------------------------------------------------------------
 
 
-        public IWebElement FindElement(string elementLocator,string locatorStrategy = "xpath",bool waitForElement = true,int waitTimeSec = 20)
+        By Locator;
+
+        public void SetLocator(string elementLocator, string locatorStrategy = "xpath")
         {
-            string LogMsg;
-            IWebElement returnElement = null;
-            By locator;
             switch (locatorStrategy.ToLower())
             {
                 case "xpath":
-                        locator = By.XPath(elementLocator);
-                        break;
+                    Locator = By.XPath(elementLocator);
+                    break;
                 case "css":
                 case "cssselector":
-                    locator = By.CssSelector(elementLocator);
+                    Locator = By.CssSelector(elementLocator);
                     break;
                 case "id":
-                    locator = By.Id(elementLocator);
+                    Locator = By.Id(elementLocator);
                     break;
                 case "name":
-                    locator = By.Name(elementLocator);
+                    Locator = By.Name(elementLocator);
                     break;
                 default:
                     LogMsg = $"EXCEPTION\tLOCATOR ERROR\nError:\tFE00001\n\tThe Locator Stragety Provided does not match a recognized strategy.\n\tLocator Strategy Provided:\t{locatorStrategy}";
                     Logger.Write(LogMsg);
                     throw new Exception(LogMsg);
-                    
+
             }
+
+
+        }
+
+        public IWebElement FindElement(string elementLocator,string locatorStrategy = "xpath",bool waitForElement = true,int waitTimeSec = 20)
+        {
+            IWebElement returnElement = null;
+
+            SetLocator(elementLocator, locatorStrategy);
 
             int waitLoopCounter = (waitTimeSec < 1) ? 1 : waitTimeSec;
             for (int waitCount = waitLoopCounter; waitCount > 0; waitCount--)
@@ -262,7 +277,7 @@ namespace CoreTools
                 Thread.Sleep(1000);
                 try
                 {
-                    returnElement = Driver.FindElement(locator);
+                    returnElement = Driver.FindElement(Locator);
                     break;
                 }
                 catch
@@ -275,7 +290,7 @@ namespace CoreTools
 
             if (returnElement == null)
             {
-                LogMsg = $"Unable to Locate Element:\t{locator} using strategy {locatorStrategy}.";
+                LogMsg = $"Unable to Locate Element:\t{Locator} using strategy {locatorStrategy}.";
                 Logger.Write(LogMsg);
                 throw new Exception(LogMsg);
             }
@@ -283,6 +298,53 @@ namespace CoreTools
                 return returnElement;
             }
         }
+
+        public List<IWebElement> FindElements(string elementLocator, string locatorStrategy = "xpath", bool waitForElement = true, int waitTimeSec = 20)
+        {
+            string LogMsg;
+            List<IWebElement> returnElements = new List<IWebElement>();
+
+
+            SetLocator(elementLocator, locatorStrategy);
+
+            int waitLoopCounter = (waitTimeSec < 1) ? 1 : waitTimeSec;
+            for (int waitCount = waitLoopCounter; waitCount > 0; waitCount--)
+            {
+                Thread.Sleep(1000);
+                try
+                {
+                    returnElements = new List<IWebElement>(Driver.FindElements(Locator));
+                    
+                    break;
+                }
+                catch
+                {
+
+                    Logger.Write("Locator Not Found");
+
+                }
+            }
+
+            if (returnElements.Count == 0)
+            {
+                LogMsg = $"Unable to Locate Element:\t{Locator} using strategy {locatorStrategy}.";
+                Logger.Write(LogMsg);
+                throw new Exception(LogMsg);
+            }
+            else
+            {
+                return returnElements;
+            }
+
+        }
+
+
+        //  ---------------------------------------------------------------
+        //  Element Interactions (FE)
+        //  ---------------------------------------------------------------
+        //  ---------------------------------------------------------------
+
+
 
 
     }
