@@ -27,6 +27,7 @@ namespace BingItHere
 
             Console.WriteLine("Find Elements");
             Elements = coreTools.FindElements("//a");
+            Console.WriteLine($"Elements Found:\t{Elements.Count}");
             Console.WriteLine("Click Element");
             element.Click();
 

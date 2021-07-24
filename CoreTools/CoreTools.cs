@@ -238,6 +238,19 @@ namespace CoreTools
 
         By Locator;
 
+        /// <summary>
+        /// Sets the Locator and strategy to use.
+        /// <para><br>-- elementLocator = The locator for the element (IE: #id, "//a", etc)</br>
+        /// <br>-- locatorStrategy = The Strategy to use to locate the element </br>
+        /// <br>-- -- -- xpath (default)</br>
+        /// <br>-- -- -- css / cssselector</br>
+        /// <br>-- -- -- name</br>
+        /// <br>-- -- -- id</br>
+        /// </para>
+        /// </summary>
+        /// <param name="elementLocator"></param>
+        /// <param name="locatorStrategy"></param>
+
         public void SetLocator(string elementLocator, string locatorStrategy = "xpath")
         {
             switch (locatorStrategy.ToLower())
@@ -265,6 +278,23 @@ namespace CoreTools
 
         }
 
+        /// <summary>
+        /// Locates a single Element on the page that matches the locator and returns an IWebElement object
+        /// <para><br>-- elementLocator = The locator for the element (IE: #id, "//a", etc)</br>
+        /// <br>-- locatorStrategy = The Strategy to use to locate the element </br>
+        /// <br>-- -- -- xpath (default)</br>
+        /// <br>-- -- -- css / cssselector</br>
+        /// <br>-- -- -- name</br>
+        /// <br>-- -- -- id</br>
+        /// <br>-- waitForElement = Wait for element to appear on page (true {default}/false)</br>
+        /// <br>-- waitTimeSec = Number of seconds to wait for the element (default = 20)</br>
+        /// </para>
+        /// </summary>
+        /// <param name="elementLocator"></param>
+        /// <param name="locatorStrategy"></param>
+        /// <param name="waitForElement"></param>
+        /// <param name="waitTimeSec"></param>
+        /// <returns></returns>
         public IWebElement FindElement(string elementLocator,string locatorStrategy = "xpath",bool waitForElement = true,int waitTimeSec = 20)
         {
             IWebElement returnElement = null;
@@ -298,6 +328,25 @@ namespace CoreTools
                 return returnElement;
             }
         }
+
+
+        /// <summary>
+        /// Locates all Elements on the page that match the locator and returns a List of IWebElement objects
+        /// <para><br>-- elementLocator = The locator for the element (IE: #id, "//a", etc)</br>
+        /// <br>-- locatorStrategy = The Strategy to use to locate the element </br>
+        /// <br>-- -- -- xpath (default)</br>
+        /// <br>-- -- -- css / cssselector</br>
+        /// <br>-- -- -- name</br>
+        /// <br>-- -- -- id</br>
+        /// <br>-- waitForElement = Wait for element to appear on page (true {default}/false)</br>
+        /// <br>-- waitTimeSec = Number of seconds to wait for the element (default = 20)</br>
+        /// </para>
+        /// </summary>
+        /// <param name="elementLocator"></param>
+        /// <param name="locatorStrategy"></param>
+        /// <param name="waitForElement"></param>
+        /// <param name="waitTimeSec"></param>
+        /// <returns></returns>
 
         public List<IWebElement> FindElements(string elementLocator, string locatorStrategy = "xpath", bool waitForElement = true, int waitTimeSec = 20)
         {
