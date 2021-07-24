@@ -25,6 +25,9 @@ namespace CoreTools
         private string DriverFileName { get; set; }
         private string DriverFilePath { get; set; }
 
+        public IWebElement Element { get; set; }
+        public List<IWebElement> Elements { get; set; }
+
 
 
         //  ---------------------------------------------------------------
@@ -115,30 +118,6 @@ namespace CoreTools
 
 
         /// <summary>
-        /// Opens the browser session. 
-        /// <para><br>browserName = the name of the browser to open</br>
-        /// <br>-Options:</br>
-        /// <br>---FireFox, FF</br>
-        /// <br>---Google, Chrome</br>
-        /// <br>---IE, IExplore</br>
-        /// <br>---Edge, MSEdge</br></para>
-        /// </summary>
-        /// <param name="browserName"></param>
-        public void OpenBrowser(string browserName)
-        {
-            Logger.Write("Opening Browser");
-            BrowserName = browserName;
-
-            SetDriverFileName();
-
-            SetDriverFilePath();
-
-            Driver = CreateSession();
-
-
-        }
-
-        /// <summary>
         /// <para>Creates the IWebDriver session based on the browser selected</para>
         /// <para>browserName = The name of the browser
         /// <br>---Gecko = FF or FireFox</br>
@@ -179,6 +158,57 @@ namespace CoreTools
 
         }
 
+        /// <summary>
+        /// Opens the browser session. 
+        /// <para><br>browserName = the name of the browser to open</br>
+        /// <br>-Options:</br>
+        /// <br>---FireFox, FF</br>
+        /// <br>---Google, Chrome</br>
+        /// <br>---IE, IExplore</br>
+        /// <br>---Edge, MSEdge</br></para>
+        /// </summary>
+        /// <param name="browserName"></param>
+        public void OpenBrowser(string browserName)
+        {
+            Logger.Write("Opening Browser");
+            BrowserName = browserName;
+
+            SetDriverFileName();
+
+            SetDriverFilePath();
+
+            Driver = CreateSession();
+
+
+        }
+
+
+        //  ---------------------------------------------------------------
+        //  CLOSING A SESSION
+        //  ---------------------------------------------------------------
+        //  ---------------------------------------------------------------
+
+
+        /// <summary>
+        /// Closes the Browser.
+        /// </summary>
+        public void CloseBrowser()
+        {
+
+            Logger.Write("Closing Browser Session");
+            try
+            {
+                Driver.Close();
+            }
+            catch (Exception e)
+            {
+                string exceptionMsg = $"EXCEPTION:\n\tBrowser has failed to close.\n{e}";
+                Logger.Write(exceptionMsg);
+                throw new Exception(exceptionMsg);
+
+            }
+
+        }
 
         //  ---------------------------------------------------------------
         //  Navigating To pages
@@ -295,6 +325,42 @@ namespace CoreTools
         /// <param name="waitForElement"></param>
         /// <param name="waitTimeSec"></param>
         /// <returns></returns>
+
+
+        public void FindElement(string elementLocator, string locatorStrategy = "xpath", bool waitForElement = true, int waitTimeSec = 20)
+        {
+            Element  = null;
+
+            SetLocator(elementLocator, locatorStrategy);
+
+            int waitLoopCounter = (waitTimeSec < 1) ? 1 : waitTimeSec;
+            for (int waitCount = waitLoopCounter; waitCount > 0; waitCount--)
+            {
+                Thread.Sleep(1000);
+                try
+                {
+                    Element = Driver.FindElement(Locator);
+                    break;
+                }
+                catch
+                {
+
+                    Logger.Write("Locator Not Found");
+
+                }
+            }
+
+            if (Element == null)
+            {
+                LogMsg = $"Unable to Locate Element:\t{Locator} using strategy {locatorStrategy}.";
+                Logger.Write(LogMsg);
+                throw new Exception(LogMsg);
+            }
+
+        }
+
+
+        /*
         public IWebElement FindElement(string elementLocator,string locatorStrategy = "xpath",bool waitForElement = true,int waitTimeSec = 20)
         {
             IWebElement returnElement = null;
@@ -329,6 +395,8 @@ namespace CoreTools
             }
         }
 
+        */
+
 
         /// <summary>
         /// Locates all Elements on the page that match the locator and returns a List of IWebElement objects
@@ -348,6 +416,44 @@ namespace CoreTools
         /// <param name="waitTimeSec"></param>
         /// <returns></returns>
 
+
+        public void FindElements(string elementLocator, string locatorStrategy = "xpath", bool waitForElement = true, int waitTimeSec = 20)
+        {
+            string LogMsg;
+            Elements = new List<IWebElement>();
+
+
+            SetLocator(elementLocator, locatorStrategy);
+
+            int waitLoopCounter = (waitTimeSec < 1) ? 1 : waitTimeSec;
+            for (int waitCount = waitLoopCounter; waitCount > 0; waitCount--)
+            {
+                Thread.Sleep(1000);
+                try
+                {
+                    Elements = new List<IWebElement>(Driver.FindElements(Locator));
+
+                    break;
+                }
+                catch
+                {
+
+                    Logger.Write("Locator Not Found");
+
+                }
+            }
+
+            if (Elements.Count == 0)
+            {
+                LogMsg = $"Unable to Locate Element:\t{Locator} using strategy {locatorStrategy}.";
+                Logger.Write(LogMsg);
+                throw new Exception(LogMsg);
+            }
+
+        }
+
+
+        /*
         public List<IWebElement> FindElements(string elementLocator, string locatorStrategy = "xpath", bool waitForElement = true, int waitTimeSec = 20)
         {
             string LogMsg;
@@ -387,6 +493,7 @@ namespace CoreTools
 
         }
 
+        */
 
         //  ---------------------------------------------------------------
         //  Element Interactions (FE)
