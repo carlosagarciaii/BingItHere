@@ -16,7 +16,8 @@ namespace CoreTools
                                                                         "../../Drivers",
                                                                         "../Drivers"
         };
-
+        public const string LOGFILE_NAME = "_LogFile.log";
+        public const string LOGFILE_FOLDER_NAME = "LogFiles";
 
 
         
