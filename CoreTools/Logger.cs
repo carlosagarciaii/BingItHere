@@ -2,36 +2,64 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-
+using System.Threading;
 
 namespace CoreTools
 {
-    public class Logger
+    public static class Logger
     {
 
         public static void Write(string message,string severityLevel = "INFO")
         {
+
             string LogMessage = $"{GetTimeStamp()}\t{severityLevel}\t{message}";
-            string targetFile = $"{GetWorkingDir()}/{CTConstants.LOGFILE_NAME}";
+            string targetFile = $"{GetWorkingDir()}/{CTConstants.LOGFILE_FOLDER_NAME}/{CTConstants.LOGFILE_NAME}";
+            string logFileFolder = $"{ GetWorkingDir() }/{ CTConstants.LOGFILE_FOLDER_NAME}";
+
+            if (!Directory.Exists(logFileFolder)) { 
+                Directory.CreateDirectory(logFileFolder);
+                Thread.Sleep(3000);
+            }
 
             FileInfo logFile = new FileInfo(targetFile);
-            
-            if (!logFile.Exists) { logFile.Create(); }
-            using (StreamWriter streamWriter = logFile.AppendText())
+
+            if (logFile.Length > CTConstants.MAX_LOGFILE_SIZE) {
+                string targetNewFile = $"{logFileFolder}/{GetTimeStamp(false)}_{CTConstants.LOGFILE_NAME}";
+                if (File.Exists(targetNewFile)) { }
+                logFile.CopyTo(targetNewFile);
+                Thread.Sleep(2000);
+                logFile.Delete();
+                Thread.Sleep(5000);
+            }
+            if (!logFile.Exists)
             {
-                streamWriter.Write(LogMessage);
-                streamWriter.Flush();
-                streamWriter.Close();
+                using (StreamWriter streamWriter = logFile.CreateText())
+                {
+                    streamWriter.Write($"{LogMessage}\n");
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
+
+            }
+            else
+            {
+                using (StreamWriter streamWriter = logFile.AppendText())
+                {
+                    streamWriter.Write($"{LogMessage}\n");
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
             }
 
             Console.WriteLine(LogMessage);
-
+            
 
         }
 
-        private static string GetTimeStamp()
+        private static string GetTimeStamp(bool returnFullTimeStamp = true)
         {
-            string outString = "";
+            string outDate = "";
+            string outTime = "";
             DateTime now = DateTime.Now;
 
             string Year = "0000" + now.Year.ToString();
@@ -41,7 +69,7 @@ namespace CoreTools
             Month = Month.Substring(Month.Length - 2, 2);
 
             string Day = "00" + now.Day.ToString();
-            Day = Day.Substring(Day.Length - 4, 4);
+            Day = Day.Substring(Day.Length - 2, 2);
 
             string Hour = "00" + now.Hour.ToString();
             Hour = Hour.Substring(Hour.Length - 2, 2);
@@ -55,8 +83,9 @@ namespace CoreTools
             string Millisecond = "0000" + now.Millisecond.ToString();
             Millisecond = Millisecond.Substring(Millisecond.Length - 4, 4);
 
-            outString = $"{Year}{Month}{Day}-{Hour}:{Minute}:{Second}.{Millisecond}";
-            return outString;
+            outDate = $"{Year}{Month}{Day}";
+            outTime = (returnFullTimeStamp)? $"-{Hour}:{Minute}:{Second}.{Millisecond}":"";
+            return outDate + outTime;
 
         }
 

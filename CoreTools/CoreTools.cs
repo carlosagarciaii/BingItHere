@@ -18,7 +18,7 @@ namespace CoreTools
         //  ---------------------------------------------------------------
         //  ---------------------------------------------------------------
 
-        Logger logger = new Logger();
+
         string LogMsg;
         private IWebDriver Driver { get; set; }
         private string BrowserName { get; set; }
@@ -75,7 +75,7 @@ namespace CoreTools
                     break;
                 default:
                     string LogMsg = "The Browser Provided does not match an acceptable value.";
-                    logger.Write(LogMsg);
+                    Logger.Write(LogMsg);
                     throw new Exception(LogMsg);
 
             }

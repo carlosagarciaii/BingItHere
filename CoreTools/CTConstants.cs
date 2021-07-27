@@ -18,7 +18,7 @@ namespace CoreTools
         };
         public const string LOGFILE_NAME = "_LogFile.log";
         public const string LOGFILE_FOLDER_NAME = "LogFiles";
-
+        public const int MAX_LOGFILE_SIZE = 2000;
 
         
 
