@@ -501,19 +501,61 @@ namespace CoreTools
         //  ---------------------------------------------------------------
 
 
+
+        /// <summary>
+        /// Clicks on an element using the Selenium WebDriver
+        /// </summary>
         public void Click()
         {
+            string outMsg;
             try
             {
                 Logger.Write("Clicking on Element.");
                 Element.Click();
             }
-            catch
+            catch (Exception e)
             {
-                Logger.Write("Cannot Click with Selenium.");
+                outMsg = $"ERROR:\tCannot Click with Selenium.\n{e}";
+                Logger.Write(outMsg);
+                throw new Exception(outMsg);
+
             }
 
         }
+
+        public string GetElementAttribute(string attribute2Get = "innerText")
+        {
+            string outMsg;
+            string outValue = "";
+
+            switch (attribute2Get.ToLower())
+            {
+                case "innertext":
+                case "text":
+                    outValue = Element.GetAttribute("innerText");
+                    break;
+                case "innerhtml":
+                case "html":
+                    outValue = Element.GetAttribute("innerHTML");
+                    break;
+                case "value":
+                    outValue = Element.GetProperty("value");
+                    break;
+
+                default:
+                    outMsg = $"ERROR:\tThe attribute provided [{attribute2Get}] does not match a valid type. ";
+                    Logger.Write(outMsg);
+                    throw new Exception(outMsg);
+            }
+
+            return outValue;
+
+
+
+        }
+
+
+
 
     }
 }
