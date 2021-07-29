@@ -9,20 +9,41 @@ namespace CoreTools
     public static class Logger
     {
 
-        public static void Write(string message,string severityLevel = "INFO")
+        // Declaring Logging Levels
+
+        private static readonly LogLevel CRITICAL = CTConstants.LOG_CRITICAL;
+        private static readonly LogLevel CRIT = CTConstants.LOG_CRIT;
+        private static readonly LogLevel ERROR = CTConstants.LOG_ERROR;
+        private static readonly LogLevel ERR = CTConstants.LOG_ERR;
+        private static readonly LogLevel WARNING = CTConstants.LOG_WARNING;
+        private static readonly LogLevel WARN = CTConstants.LOG_WARN;
+        private static readonly LogLevel INFO = CTConstants.LOG_INFO;
+        private static readonly LogLevel DEBUG = CTConstants.LOG_DEBUG;
+        private static readonly LogLevel TRACE = CTConstants.LOG_TRACE;
+
+        public static void Write(string message,LogLevel severityLevel = DEBUG)
         {
+
+
+
 
             string LogMessage = $"{GetTimeStamp()}\t{severityLevel}\t{message}";
             string targetFile = $"{GetWorkingDir()}/{CTConstants.LOGFILE_FOLDER_NAME}/{CTConstants.LOGFILE_NAME}";
             string logFileFolder = $"{ GetWorkingDir() }/{ CTConstants.LOGFILE_FOLDER_NAME}";
+
+            //Find or Create Logfile Directory
 
             if (!Directory.Exists(logFileFolder)) { 
                 Directory.CreateDirectory(logFileFolder);
                 Thread.Sleep(3000);
             }
 
+
+            // Set Logfile
             FileInfo logFile = new FileInfo(targetFile);
 
+
+            // Backup Logfile & Delete Original If Too Big
             if (logFile.Length > CTConstants.MAX_LOGFILE_SIZE) {
                 string targetNewFile = $"{logFileFolder}/{GetTimeStamp(false)}_{CTConstants.LOGFILE_NAME}";
                 if (File.Exists(targetNewFile)) { }
@@ -31,6 +52,9 @@ namespace CoreTools
                 logFile.Delete();
                 Thread.Sleep(5000);
             }
+
+            //Create New Logfile if Does Not Exist
+            //ALSO, Write to Logfile
             if (!logFile.Exists)
             {
                 using (StreamWriter streamWriter = logFile.CreateText())
