@@ -6,13 +6,13 @@ namespace CoreTools
 {
     public class LogLevel
     {
-        public string LevelName { get; set; }
-        public int LevelValue { get; set; }
+        public string Name { get; set; }
+        public int Value { get; set; }
 
         public LogLevel(string name,int value)
         {
-            LevelName = name;
-            LevelValue = value;
+            Name = name;
+            Value = value;
         }
 
     }

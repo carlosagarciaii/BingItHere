@@ -75,7 +75,7 @@ namespace CoreTools
                     break;
                 default:
                     string LogMsg = "The Browser Provided does not match an acceptable value.";
-                    Logger.Write(LogMsg);
+                    Logger.Write(LogMsg,CTConstants.LOG_ERROR);
                     throw new Exception(LogMsg);
 
             }

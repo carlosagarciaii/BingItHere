@@ -11,23 +11,18 @@ namespace CoreTools
 
         // Declaring Logging Levels
 
-        private static readonly LogLevel CRITICAL = CTConstants.LOG_CRITICAL;
-        private static readonly LogLevel CRIT = CTConstants.LOG_CRIT;
-        private static readonly LogLevel ERROR = CTConstants.LOG_ERROR;
-        private static readonly LogLevel ERR = CTConstants.LOG_ERR;
-        private static readonly LogLevel WARNING = CTConstants.LOG_WARNING;
-        private static readonly LogLevel WARN = CTConstants.LOG_WARN;
-        private static readonly LogLevel INFO = CTConstants.LOG_INFO;
-        private static readonly LogLevel DEBUG = CTConstants.LOG_DEBUG;
-        private static readonly LogLevel TRACE = CTConstants.LOG_TRACE;
 
-        public static void Write(string message,LogLevel severityLevel = DEBUG)
+
+        public static void Write(string message,LogLevel severityLevel = null)
         {
+            if (severityLevel == null)
+            {
+                severityLevel = CTConstants.LOG_INFO;
+            }
 
 
 
-
-            string LogMessage = $"{GetTimeStamp()}\t{severityLevel}\t{message}";
+            string LogMessage = $"{GetTimeStamp()}\t{severityLevel.Name}\t{message}";
             string targetFile = $"{GetWorkingDir()}/{CTConstants.LOGFILE_FOLDER_NAME}/{CTConstants.LOGFILE_NAME}";
             string logFileFolder = $"{ GetWorkingDir() }/{ CTConstants.LOGFILE_FOLDER_NAME}";
 
@@ -44,7 +39,7 @@ namespace CoreTools
 
 
             // Backup Logfile & Delete Original If Too Big
-            if (logFile.Length > CTConstants.MAX_LOGFILE_SIZE) {
+            if (logFile.Exists && logFile.Length > CTConstants.MAX_LOGFILE_SIZE) {
                 string targetNewFile = $"{logFileFolder}/{GetTimeStamp(false)}_{CTConstants.LOGFILE_NAME}";
                 if (File.Exists(targetNewFile)) { }
                 logFile.CopyTo(targetNewFile);
@@ -76,7 +71,12 @@ namespace CoreTools
             }
 
             Console.WriteLine(LogMessage);
-            
+
+            if (severityLevel == CTConstants.LOG_CRITICAL)
+            {
+
+                throw new Exception(CTConstants.LOG_CRITICAL.Name + LogMessage);
+            }            
 
         }
 
