@@ -13,7 +13,7 @@ namespace CoreTools
 
 
 
-        public static void Write(string message,LogLevel severityLevel = null)
+        public static void Write(string message, string functionName,  LogLevel severityLevel = null)
         {
             if (severityLevel == null)
             {
@@ -22,7 +22,7 @@ namespace CoreTools
 
 
 
-            string LogMessage = $"{GetTimeStamp()}\t{severityLevel.Name}\t{message}";
+            string LogMessage = $"{GetTimeStamp()}  |  {severityLevel.Name}  |  {functionName}  |  {message}";
             string targetFile = $"{GetWorkingDir()}/{CTConstants.LOGFILE_FOLDER_NAME}/{CTConstants.LOGFILE_NAME}";
             string logFileFolder = $"{ GetWorkingDir() }/{ CTConstants.LOGFILE_FOLDER_NAME}";
 
@@ -80,6 +80,12 @@ namespace CoreTools
 
         }
 
+
+        /// <summary>
+        /// Gets the Current Date/Time and Creates a TimeStamp
+        /// </summary>
+        /// <param name="returnFullTimeStamp"></param>
+        /// <returns></returns>
         private static string GetTimeStamp(bool returnFullTimeStamp = true)
         {
             string outDate = "";
@@ -113,6 +119,12 @@ namespace CoreTools
 
         }
 
+
+        /// <summary>
+        /// Returns the Current Working Directory
+        /// <para>May be redundant.... not sure</para>
+        /// </summary>
+        /// <returns></returns>
         private static string GetWorkingDir()
         {
             string outString = System.IO.Directory.GetCurrentDirectory();

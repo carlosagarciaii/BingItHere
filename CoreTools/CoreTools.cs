@@ -46,6 +46,7 @@ namespace CoreTools
         /// <returns>String value for the driver's file name</returns>
         private void SetDriverFileName()
         {
+            string funcName = "SetDriverFileName";
 
             switch (BrowserName.ToLower())
             {
@@ -75,7 +76,7 @@ namespace CoreTools
                     break;
                 default:
                     string LogMsg = "The Browser Provided does not match an acceptable value.";
-                    Logger.Write(LogMsg,CTConstants.LOG_ERROR);
+                    Logger.Write(LogMsg,funcName,CTConstants.LOG_ERROR);
                     throw new Exception(LogMsg);
 
             }
@@ -91,7 +92,8 @@ namespace CoreTools
         /// <returns></returns>
         private void SetDriverFilePath()
         {
-
+            string funcName = "SetDriverFilePath";
+            string msg = "";
             bool isFoundDriverDirPath = false;
             string fullDriverFilePath;
 
@@ -100,20 +102,27 @@ namespace CoreTools
                 if (Directory.Exists(driverDirPathItem))
                 {
                     isFoundDriverDirPath = true;
-                    Logger.Write($"Driver Path Found:\t{DriverFilePath}");
+                    Logger.Write($"Driver Path Found:\t{DriverFilePath}",funcName,CTConstants.LOG_INFO);
                     fullDriverFilePath = driverDirPathItem + "/" + DriverFileName;
 
                     if (File.Exists(fullDriverFilePath))
                     {
-                        Logger.Write($"Driver File Found:\t{fullDriverFilePath}");
+                        Logger.Write($"Driver File Found:\t{fullDriverFilePath}",funcName,CTConstants.LOG_INFO) ;
                         DriverFilePath = driverDirPathItem + "/";
                         return;
                     }
                 }
             }
-            if (!isFoundDriverDirPath) throw new Exception("EXCEPTION:\n\tDriver Directory Cannot Be Found");
+            if (!isFoundDriverDirPath)
+            {
+                msg = "EXCEPTION:\n\tDriver Directory Cannot Be Found";
+                Logger.Write(msg, funcName, CTConstants.LOG_CRITICAL);
+                throw new Exception(msg);
+            }
 
-            throw new Exception("EXCEPTION:\n\tDriver File Cannot Be Found");
+            msg = "EXCEPTION:\n\tDriver File Cannot Be Found";
+            Logger.Write(msg, funcName, CTConstants.LOG_CRITICAL);
+            throw new Exception(msg);
         }
 
 
@@ -129,7 +138,7 @@ namespace CoreTools
         /// <returns></returns>
         private IWebDriver CreateSession()
         {
-
+            string funcName = "CreateSession";
 
             switch (BrowserName.ToLower())
             {
@@ -152,7 +161,7 @@ namespace CoreTools
                     return new EdgeDriver(DriverFilePath);
                 default:
                     string LogMsg = "Unable to Locate WebDriver";
-                    Logger.Write(LogMsg);
+                    Logger.Write(LogMsg,funcName);
                     throw new Exception(LogMsg);
             }
 
@@ -170,7 +179,8 @@ namespace CoreTools
         /// <param name="browserName"></param>
         public void OpenBrowser(string browserName)
         {
-            Logger.Write("Opening Browser");
+            string funcName = "OpenBrowser";
+            Logger.Write("Opening Browser",funcName,CTConstants.LOG_INFO);
             BrowserName = browserName;
 
             SetDriverFileName();
@@ -194,8 +204,9 @@ namespace CoreTools
         /// </summary>
         public void CloseBrowser()
         {
+            string funcName = "CloseBrowser";
 
-            Logger.Write("Closing Browser Session");
+            Logger.Write("Closing Browser Session",funcName,CTConstants.LOG_INFO);
             try
             {
                 Driver.Close();
@@ -203,7 +214,7 @@ namespace CoreTools
             catch (Exception e)
             {
                 string exceptionMsg = $"EXCEPTION:\n\tBrowser has failed to close.\n{e}";
-                Logger.Write(exceptionMsg);
+                Logger.Write(exceptionMsg,funcName,CTConstants.LOG_WARNING);
                 throw new Exception(exceptionMsg);
 
             }
@@ -227,6 +238,7 @@ namespace CoreTools
         /// <param name="waitInSec"></param>
         public void NavTo(string goToURL,int retryNumbers = 0,int waitInSec = 20)
         {
+            string funcName = "NavTo";
             string ReadyState = "";
             Driver.Url = goToURL;
             for (int retryCount = retryNumbers + 1; retryCount >= 0; retryCount--)
@@ -239,13 +251,13 @@ namespace CoreTools
                     {
                         Thread.Sleep(1000);
                         ReadyState = (string)((IJavaScriptExecutor)Driver).ExecuteScript("return document.readyState;");
-                        Logger.Write(ReadyState);
+                        Logger.Write($"Ready State:\t{ReadyState}",funcName,CTConstants.LOG_INFO);
                         if (ReadyState.ToLower() == "complete") break;
                     }
                     catch (Exception e)
                     {
                         string LogMsg = $"\nEXCEPTION HAS OCCURRRED\n\t{e}";
-                        Logger.Write(LogMsg);
+                        Logger.Write(LogMsg,funcName,CTConstants.LOG_ERROR);
                         throw new Exception(LogMsg);
                     }
 
@@ -254,7 +266,7 @@ namespace CoreTools
             }
 
             if (ReadyState.ToLower() != "complete") throw new Exception($"\nEXCEPTION:\n\tFailed to Load Page {goToURL}");
-            Logger.Write($"Success - Navigated to:\t{Driver.Url.ToString()}");
+            Logger.Write($"Success - Navigated to:\t{Driver.Url.ToString()}",funcName,CTConstants.LOG_INFO);
 
 
         }
@@ -283,6 +295,7 @@ namespace CoreTools
 
         public void SetLocator(string elementLocator, string locatorStrategy = "xpath")
         {
+            string funcName = "SetLocator";
             switch (locatorStrategy.ToLower())
             {
                 case "xpath":
@@ -300,7 +313,7 @@ namespace CoreTools
                     break;
                 default:
                     LogMsg = $"EXCEPTION\tLOCATOR ERROR\nError:\tFE00001\n\tThe Locator Stragety Provided does not match a recognized strategy.\n\tLocator Strategy Provided:\t{locatorStrategy}";
-                    Logger.Write(LogMsg);
+                    Logger.Write(LogMsg,funcName,CTConstants.LOG_CRITICAL);
                     throw new Exception(LogMsg);
 
             }
@@ -329,6 +342,7 @@ namespace CoreTools
 
         public void FindElement(string elementLocator, string locatorStrategy = "xpath", bool waitForElement = true, int waitTimeSec = 20)
         {
+            string funcName = "FindElement";
             Element  = null;
 
             SetLocator(elementLocator, locatorStrategy);
@@ -345,7 +359,7 @@ namespace CoreTools
                 catch
                 {
 
-                    Logger.Write("Locator Not Found");
+                    Logger.Write("Locator Not Found",funcName,CTConstants.LOG_WARNING);
 
                 }
             }
@@ -353,49 +367,12 @@ namespace CoreTools
             if (Element == null)
             {
                 LogMsg = $"Unable to Locate Element:\t{Locator} using strategy {locatorStrategy}.";
-                Logger.Write(LogMsg);
+                Logger.Write(LogMsg, funcName, CTConstants.LOG_CRITICAL);
                 throw new Exception(LogMsg);
             }
 
         }
 
-
-        /*
-        public IWebElement FindElement(string elementLocator,string locatorStrategy = "xpath",bool waitForElement = true,int waitTimeSec = 20)
-        {
-            IWebElement returnElement = null;
-
-            SetLocator(elementLocator, locatorStrategy);
-
-            int waitLoopCounter = (waitTimeSec < 1) ? 1 : waitTimeSec;
-            for (int waitCount = waitLoopCounter; waitCount > 0; waitCount--)
-            {
-                Thread.Sleep(1000);
-                try
-                {
-                    returnElement = Driver.FindElement(Locator);
-                    break;
-                }
-                catch
-                {
-
-                    Logger.Write("Locator Not Found");
-
-                }
-            }
-
-            if (returnElement == null)
-            {
-                LogMsg = $"Unable to Locate Element:\t{Locator} using strategy {locatorStrategy}.";
-                Logger.Write(LogMsg);
-                throw new Exception(LogMsg);
-            }
-            else { 
-                return returnElement;
-            }
-        }
-
-        */
 
 
         /// <summary>
@@ -419,6 +396,8 @@ namespace CoreTools
 
         public void FindElements(string elementLocator, string locatorStrategy = "xpath", bool waitForElement = true, int waitTimeSec = 20)
         {
+
+            string funcName = "FindElements";
             string LogMsg;
             Elements = new List<IWebElement>();
 
@@ -438,7 +417,7 @@ namespace CoreTools
                 catch
                 {
 
-                    Logger.Write("Locator Not Found");
+                    Logger.Write("Locator Not Found",funcName,CTConstants.LOG_WARNING);
 
                 }
             }
@@ -446,54 +425,13 @@ namespace CoreTools
             if (Elements.Count == 0)
             {
                 LogMsg = $"Unable to Locate Element:\t{Locator} using strategy {locatorStrategy}.";
-                Logger.Write(LogMsg);
+                Logger.Write(LogMsg,funcName,CTConstants.LOG_ERROR);
                 throw new Exception(LogMsg);
             }
 
         }
 
-
-        /*
-        public List<IWebElement> FindElements(string elementLocator, string locatorStrategy = "xpath", bool waitForElement = true, int waitTimeSec = 20)
-        {
-            string LogMsg;
-            List<IWebElement> returnElements = new List<IWebElement>();
-
-
-            SetLocator(elementLocator, locatorStrategy);
-
-            int waitLoopCounter = (waitTimeSec < 1) ? 1 : waitTimeSec;
-            for (int waitCount = waitLoopCounter; waitCount > 0; waitCount--)
-            {
-                Thread.Sleep(1000);
-                try
-                {
-                    returnElements = new List<IWebElement>(Driver.FindElements(Locator));
-                    
-                    break;
-                }
-                catch
-                {
-
-                    Logger.Write("Locator Not Found");
-
-                }
-            }
-
-            if (returnElements.Count == 0)
-            {
-                LogMsg = $"Unable to Locate Element:\t{Locator} using strategy {locatorStrategy}.";
-                Logger.Write(LogMsg);
-                throw new Exception(LogMsg);
-            }
-            else
-            {
-                return returnElements;
-            }
-
-        }
-
-        */
+     
 
         //  ---------------------------------------------------------------
         //  Element Interactions (FE)
@@ -507,24 +445,28 @@ namespace CoreTools
         /// </summary>
         public void Click()
         {
+            string funcName = "Click";
             string outMsg;
             try
             {
-                Logger.Write("Clicking on Element.");
+                Logger.Write("Clicking on Element.",funcName,CTConstants.LOG_WARNING);
                 Element.Click();
             }
             catch (Exception e)
             {
                 outMsg = $"ERROR:\tCannot Click with Selenium.\n{e}";
-                Logger.Write(outMsg);
+                Logger.Write(outMsg,funcName,CTConstants.LOG_ERROR);
                 throw new Exception(outMsg);
 
             }
 
         }
 
+
+
         public string GetElementAttribute(string attribute2Get = "innerText")
         {
+            string funcName = "GetElementAttribute";
             string outMsg;
             string outValue = "";
 
@@ -544,7 +486,7 @@ namespace CoreTools
 
                 default:
                     outMsg = $"ERROR:\tThe attribute provided [{attribute2Get}] does not match a valid type. ";
-                    Logger.Write(outMsg);
+                    Logger.Write(outMsg,funcName,CTConstants.LOG_ERROR);
                     throw new Exception(outMsg);
             }
 
