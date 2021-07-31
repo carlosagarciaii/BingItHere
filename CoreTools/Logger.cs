@@ -6,14 +6,17 @@ using System.Threading;
 
 namespace CoreTools
 {
-    public static class Logger
+    public  class Logger
     {
+        private LogLevel MyLogLevel { get; set; }
 
-        // Declaring Logging Levels
+        public Logger(LogLevel myLogLevel = null)
+        {
+            MyLogLevel = (myLogLevel == null) ? CTConstants.LOG_INFO : myLogLevel;
 
+        }
 
-
-        public static void Write(string message, string functionName,  LogLevel severityLevel = null)
+        public void Write(string message, string functionName,  LogLevel severityLevel = null)
         {
             if (severityLevel == null)
             {
@@ -26,52 +29,58 @@ namespace CoreTools
             string targetFile = $"{GetWorkingDir()}/{CTConstants.LOGFILE_FOLDER_NAME}/{CTConstants.LOGFILE_NAME}";
             string logFileFolder = $"{ GetWorkingDir() }/{ CTConstants.LOGFILE_FOLDER_NAME}";
 
-            //Find or Create Logfile Directory
 
-            if (!Directory.Exists(logFileFolder)) { 
-                Directory.CreateDirectory(logFileFolder);
-                Thread.Sleep(3000);
-            }
-
-
-            // Set Logfile
-            FileInfo logFile = new FileInfo(targetFile);
-
-
-            // Backup Logfile & Delete Original If Too Big
-            if (logFile.Exists && logFile.Length > CTConstants.MAX_LOGFILE_SIZE) {
-                string targetNewFile = $"{logFileFolder}/{GetTimeStamp(false)}_{CTConstants.LOGFILE_NAME}";
-                if (File.Exists(targetNewFile)) { }
-                logFile.CopyTo(targetNewFile);
-                Thread.Sleep(2000);
-                logFile.Delete();
-                Thread.Sleep(5000);
-            }
-
-            //Create New Logfile if Does Not Exist
-            //ALSO, Write to Logfile
-            if (!logFile.Exists)
+            if (MyLogLevel.Value >= severityLevel.Value)
             {
-                using (StreamWriter streamWriter = logFile.CreateText())
+
+                //Find or Create Logfile Directory
+
+                if (!Directory.Exists(logFileFolder))
                 {
-                    streamWriter.Write($"{LogMessage}\n");
-                    streamWriter.Flush();
-                    streamWriter.Close();
+                    Directory.CreateDirectory(logFileFolder);
+                    Thread.Sleep(3000);
                 }
 
-            }
-            else
-            {
-                using (StreamWriter streamWriter = logFile.AppendText())
+
+                // Set Logfile
+                FileInfo logFile = new FileInfo(targetFile);
+
+
+                // Backup Logfile & Delete Original If Too Big
+                if (logFile.Exists && logFile.Length > CTConstants.MAX_LOGFILE_SIZE)
                 {
-                    streamWriter.Write($"{LogMessage}\n");
-                    streamWriter.Flush();
-                    streamWriter.Close();
+                    string targetNewFile = $"{logFileFolder}/{GetTimeStamp(false)}_{CTConstants.LOGFILE_NAME}";
+                    if (File.Exists(targetNewFile)) { }
+                    logFile.CopyTo(targetNewFile);
+                    Thread.Sleep(2000);
+                    logFile.Delete();
+                    Thread.Sleep(5000);
                 }
+
+                //Create New Logfile if Does Not Exist
+                //ALSO, Write to Logfile
+                if (!logFile.Exists)
+                {
+                    using (StreamWriter streamWriter = logFile.CreateText())
+                    {
+                        streamWriter.Write($"{LogMessage}\n");
+                        streamWriter.Flush();
+                        streamWriter.Close();
+                    }
+
+                }
+                else
+                {
+                    using (StreamWriter streamWriter = logFile.AppendText())
+                    {
+                        streamWriter.Write($"{LogMessage}\n");
+                        streamWriter.Flush();
+                        streamWriter.Close();
+                    }
+                }
+
+                Console.WriteLine(LogMessage);
             }
-
-            Console.WriteLine(LogMessage);
-
             if (severityLevel == CTConstants.LOG_CRITICAL)
             {
 
@@ -86,7 +95,7 @@ namespace CoreTools
         /// </summary>
         /// <param name="returnFullTimeStamp"></param>
         /// <returns></returns>
-        private static string GetTimeStamp(bool returnFullTimeStamp = true)
+        private string GetTimeStamp(bool returnFullTimeStamp = true)
         {
             string outDate = "";
             string outTime = "";
@@ -125,7 +134,7 @@ namespace CoreTools
         /// <para>May be redundant.... not sure</para>
         /// </summary>
         /// <returns></returns>
-        private static string GetWorkingDir()
+        private string GetWorkingDir()
         {
             string outString = System.IO.Directory.GetCurrentDirectory();
             return outString;

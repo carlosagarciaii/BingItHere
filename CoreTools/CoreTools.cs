@@ -19,14 +19,17 @@ namespace CoreTools
         //  ---------------------------------------------------------------
 
 
+        private Logger logger = new Logger(CTConstants.LOG_DEBUG);
+
         string LogMsg;
         private IWebDriver Driver { get; set; }
         private string BrowserName { get; set; }
         private string DriverFileName { get; set; }
         private string DriverFilePath { get; set; }
-
+        
         public IWebElement Element { get; set; }
         public List<IWebElement> Elements { get; set; }
+
 
 
 
@@ -76,7 +79,7 @@ namespace CoreTools
                     break;
                 default:
                     string LogMsg = "The Browser Provided does not match an acceptable value.";
-                    Logger.Write(LogMsg,funcName,CTConstants.LOG_ERROR);
+                    logger.Write(LogMsg,funcName,CTConstants.LOG_CRITICAL);
                     throw new Exception(LogMsg);
 
             }
@@ -102,12 +105,12 @@ namespace CoreTools
                 if (Directory.Exists(driverDirPathItem))
                 {
                     isFoundDriverDirPath = true;
-                    Logger.Write($"Driver Path Found:\t{DriverFilePath}",funcName,CTConstants.LOG_INFO);
+                    logger.Write($"Driver Path Found:\t{DriverFilePath}",funcName,CTConstants.LOG_INFO);
                     fullDriverFilePath = driverDirPathItem + "/" + DriverFileName;
 
                     if (File.Exists(fullDriverFilePath))
                     {
-                        Logger.Write($"Driver File Found:\t{fullDriverFilePath}",funcName,CTConstants.LOG_INFO) ;
+                        logger.Write($"Driver File Found:\t{fullDriverFilePath}",funcName,CTConstants.LOG_INFO) ;
                         DriverFilePath = driverDirPathItem + "/";
                         return;
                     }
@@ -116,12 +119,12 @@ namespace CoreTools
             if (!isFoundDriverDirPath)
             {
                 msg = "EXCEPTION:\n\tDriver Directory Cannot Be Found";
-                Logger.Write(msg, funcName, CTConstants.LOG_CRITICAL);
+                logger.Write(msg, funcName, CTConstants.LOG_CRITICAL);
                 throw new Exception(msg);
             }
 
             msg = "EXCEPTION:\n\tDriver File Cannot Be Found";
-            Logger.Write(msg, funcName, CTConstants.LOG_CRITICAL);
+            logger.Write(msg, funcName, CTConstants.LOG_CRITICAL);
             throw new Exception(msg);
         }
 
@@ -161,12 +164,14 @@ namespace CoreTools
                     return new EdgeDriver(DriverFilePath);
                 default:
                     string LogMsg = "Unable to Locate WebDriver";
-                    Logger.Write(LogMsg,funcName);
+                    logger.Write(LogMsg,funcName);
                     throw new Exception(LogMsg);
             }
 
         }
 
+
+        /*
         /// <summary>
         /// Opens the browser session. 
         /// <para><br>browserName = the name of the browser to open</br>
@@ -180,7 +185,37 @@ namespace CoreTools
         public void OpenBrowser(string browserName)
         {
             string funcName = "OpenBrowser";
-            Logger.Write("Opening Browser",funcName,CTConstants.LOG_INFO);
+            logger.Write("Opening Browser",funcName,CTConstants.LOG_INFO);
+            BrowserName = browserName;
+
+            SetDriverFileName();
+
+            SetDriverFilePath();
+
+            Driver = CreateSession();
+
+
+        }
+        */
+
+
+        /// <summary>
+        /// Instantiates the class and Opens the browser session 
+        /// <para><br>browserName = the name of the browser to open</br>
+        /// <br>-Options:</br>
+        /// <br>---FireFox, FF</br>
+        /// <br>---Google, Chrome</br>
+        /// <br>---IE, IExplore</br>
+        /// <br>---Edge, MSEdge</br>
+        /// <br>loggingLevel = The highest level to log</br>
+        /// </para>
+        /// </summary>
+        /// <param name="browserName"></param>
+        public CoreTools(string browserName)
+        {
+        
+            string funcName = "OpenBrowser";
+            logger.Write("Opening Browser", funcName, CTConstants.LOG_INFO);
             BrowserName = browserName;
 
             SetDriverFileName();
@@ -206,7 +241,7 @@ namespace CoreTools
         {
             string funcName = "CloseBrowser";
 
-            Logger.Write("Closing Browser Session",funcName,CTConstants.LOG_INFO);
+            logger.Write("Closing Browser Session",funcName,CTConstants.LOG_INFO);
             try
             {
                 Driver.Close();
@@ -214,7 +249,7 @@ namespace CoreTools
             catch (Exception e)
             {
                 string exceptionMsg = $"EXCEPTION:\n\tBrowser has failed to close.\n{e}";
-                Logger.Write(exceptionMsg,funcName,CTConstants.LOG_WARNING);
+                logger.Write(exceptionMsg,funcName,CTConstants.LOG_WARNING);
                 throw new Exception(exceptionMsg);
 
             }
@@ -251,13 +286,13 @@ namespace CoreTools
                     {
                         Thread.Sleep(1000);
                         ReadyState = (string)((IJavaScriptExecutor)Driver).ExecuteScript("return document.readyState;");
-                        Logger.Write($"Ready State:\t{ReadyState}",funcName,CTConstants.LOG_INFO);
+                        logger.Write($"Ready State:\t{ReadyState}",funcName,CTConstants.LOG_INFO);
                         if (ReadyState.ToLower() == "complete") break;
                     }
                     catch (Exception e)
                     {
                         string LogMsg = $"\nEXCEPTION HAS OCCURRRED\n\t{e}";
-                        Logger.Write(LogMsg,funcName,CTConstants.LOG_ERROR);
+                        logger.Write(LogMsg,funcName,CTConstants.LOG_ERROR);
                         throw new Exception(LogMsg);
                     }
 
@@ -266,7 +301,7 @@ namespace CoreTools
             }
 
             if (ReadyState.ToLower() != "complete") throw new Exception($"\nEXCEPTION:\n\tFailed to Load Page {goToURL}");
-            Logger.Write($"Success - Navigated to:\t{Driver.Url.ToString()}",funcName,CTConstants.LOG_INFO);
+            logger.Write($"Success - Navigated to:\t{Driver.Url.ToString()}",funcName,CTConstants.LOG_INFO);
 
 
         }
@@ -312,8 +347,8 @@ namespace CoreTools
                     Locator = By.Name(elementLocator);
                     break;
                 default:
-                    LogMsg = $"EXCEPTION\tLOCATOR ERROR\nError:\tFE00001\n\tThe Locator Stragety Provided does not match a recognized strategy.\n\tLocator Strategy Provided:\t{locatorStrategy}";
-                    Logger.Write(LogMsg,funcName,CTConstants.LOG_CRITICAL);
+                    LogMsg = $"EXCEPTION\tLOCATOR ERROR\nError:\tFE00001\n\tThe Locator Stragety Provided does not match a recognized strategy.\n\tLocator Strategy Provided:\t{locatorStrategy}\n\tLocator:\t{elementLocator}";
+                    logger.Write(LogMsg,funcName,CTConstants.LOG_CRITICAL);
                     throw new Exception(LogMsg);
 
             }
@@ -340,7 +375,7 @@ namespace CoreTools
         /// <returns></returns>
 
 
-        public void FindElement(string elementLocator, string locatorStrategy = "xpath", bool waitForElement = true, int waitTimeSec = 20)
+        public void FindElement(string elementLocator, string locatorStrategy = "xpath",bool isRequired = true,bool waitForElement = true, int waitTimeSec = 20)
         {
             string funcName = "FindElement";
             Element  = null;
@@ -358,8 +393,9 @@ namespace CoreTools
                 }
                 catch
                 {
+                    LogMsg = $"Locator not found:\t{elementLocator}\t|\t{locatorStrategy}";
 
-                    Logger.Write("Locator Not Found",funcName,CTConstants.LOG_WARNING);
+                    logger.Write(LogMsg,funcName,CTConstants.LOG_WARNING);
 
                 }
             }
@@ -367,8 +403,16 @@ namespace CoreTools
             if (Element == null)
             {
                 LogMsg = $"Unable to Locate Element:\t{Locator} using strategy {locatorStrategy}.";
-                Logger.Write(LogMsg, funcName, CTConstants.LOG_CRITICAL);
-                throw new Exception(LogMsg);
+                if (isRequired)
+                {
+                    logger.Write(LogMsg, funcName, CTConstants.LOG_CRITICAL);
+                    throw new Exception(LogMsg);
+
+                }
+                else
+                {
+                    logger.Write(LogMsg, funcName, CTConstants.LOG_WARNING);
+                }
             }
 
         }
@@ -383,18 +427,20 @@ namespace CoreTools
         /// <br>-- -- -- css / cssselector</br>
         /// <br>-- -- -- name</br>
         /// <br>-- -- -- id</br>
+        /// <br>-- isRequired = If element is required (Default true)</br>
         /// <br>-- waitForElement = Wait for element to appear on page (true {default}/false)</br>
         /// <br>-- waitTimeSec = Number of seconds to wait for the element (default = 20)</br>
         /// </para>
         /// </summary>
         /// <param name="elementLocator"></param>
         /// <param name="locatorStrategy"></param>
+        /// <param name="isRequired"></param>
         /// <param name="waitForElement"></param>
         /// <param name="waitTimeSec"></param>
         /// <returns></returns>
 
 
-        public void FindElements(string elementLocator, string locatorStrategy = "xpath", bool waitForElement = true, int waitTimeSec = 20)
+        public void FindElements(string elementLocator, string locatorStrategy = "xpath", bool isRequired = true, bool waitForElement = true, int waitTimeSec = 20)
         {
 
             string funcName = "FindElements";
@@ -416,8 +462,10 @@ namespace CoreTools
                 }
                 catch
                 {
+                    LogMsg = $"Locator not found:\t{elementLocator}\t|\t{locatorStrategy}";
 
-                    Logger.Write("Locator Not Found",funcName,CTConstants.LOG_WARNING);
+                    logger.Write(LogMsg, funcName, CTConstants.LOG_WARNING);
+
 
                 }
             }
@@ -425,8 +473,15 @@ namespace CoreTools
             if (Elements.Count == 0)
             {
                 LogMsg = $"Unable to Locate Element:\t{Locator} using strategy {locatorStrategy}.";
-                Logger.Write(LogMsg,funcName,CTConstants.LOG_ERROR);
-                throw new Exception(LogMsg);
+                if (isRequired) {
+                    logger.Write(LogMsg, funcName, CTConstants.LOG_ERROR);
+                    throw new Exception(LogMsg); 
+                }
+                else
+                {
+
+                    logger.Write(LogMsg, funcName, CTConstants.LOG_WARNING);
+                }
             }
 
         }
@@ -449,13 +504,13 @@ namespace CoreTools
             string outMsg;
             try
             {
-                Logger.Write("Clicking on Element.",funcName,CTConstants.LOG_WARNING);
+                logger.Write("Clicking on Element.",funcName,CTConstants.LOG_WARNING);
                 Element.Click();
             }
             catch (Exception e)
             {
                 outMsg = $"ERROR:\tCannot Click with Selenium.\n{e}";
-                Logger.Write(outMsg,funcName,CTConstants.LOG_ERROR);
+                logger.Write(outMsg,funcName,CTConstants.LOG_ERROR);
                 throw new Exception(outMsg);
 
             }
@@ -463,7 +518,14 @@ namespace CoreTools
         }
 
 
-
+        /// <summary>
+        /// Gets Element Attributes (IE: InnerText, InnerHTML)
+        /// <para><br>--- attribute2Get = the attribute to get.</br>
+        /// <br>--- --- innerHTML</br>
+        /// <br>--- --- innerText</br></para>
+        /// </summary>
+        /// <param name="attribute2Get"></param>
+        /// <returns></returns>
         public string GetElementAttribute(string attribute2Get = "innerText")
         {
             string funcName = "GetElementAttribute";
@@ -486,7 +548,7 @@ namespace CoreTools
 
                 default:
                     outMsg = $"ERROR:\tThe attribute provided [{attribute2Get}] does not match a valid type. ";
-                    Logger.Write(outMsg,funcName,CTConstants.LOG_ERROR);
+                    logger.Write(outMsg,funcName,CTConstants.LOG_ERROR);
                     throw new Exception(outMsg);
             }
 

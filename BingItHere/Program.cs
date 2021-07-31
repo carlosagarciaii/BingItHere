@@ -19,14 +19,18 @@ namespace BingItHere
             List<IWebElement> Elements = new List<IWebElement>();
 
             Console.WriteLine("Hello World!");
-            CoreTools.CoreTools coreTools = new CoreTools.CoreTools();
+            CoreTools.CoreTools coreTools = new CoreTools.CoreTools("ff");
 
-            coreTools.OpenBrowser("ff");
             coreTools.NavTo("https://www.seleniumeasy.com/test/basic-checkbox-demo.html");
             coreTools.FindElement("isAgeSelected", "id");
             Console.WriteLine("Get Value:\t" + coreTools.GetElementAttribute("value"));
             coreTools.Click();
             Console.WriteLine("Get Value:\t" + coreTools.GetElementAttribute("value"));
+
+
+            coreTools.NavTo("https://www.seleniumeasy.com/test/basic-first-form-demo.html");
+            coreTools.FindElement("user_message", "id",false);
+
 
             Thread.Sleep(5000);
 
