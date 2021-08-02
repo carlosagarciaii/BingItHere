@@ -23,9 +23,9 @@ namespace BingItHere
 
             coreTools.NavTo("https://www.seleniumeasy.com/test/basic-checkbox-demo.html");
             coreTools.FindElement("isAgeSelected", "id");
-            Console.WriteLine("Get Value:\t" + coreTools.GetElementAttribute("value"));
+            Console.WriteLine("Get Value:\t" + coreTools.GetProperty("value"));
             coreTools.Click();
-            Console.WriteLine("Get Value:\t" + coreTools.GetElementAttribute("value"));
+            Console.WriteLine("Get Value:\t" + coreTools.GetProperty("value"));
 
 
             coreTools.NavTo("https://www.seleniumeasy.com/test/basic-first-form-demo.html");
@@ -39,7 +39,8 @@ namespace BingItHere
             Thread.Sleep(5000);
 
 
-            Console.WriteLine("Get Value:\t" + coreTools.GetElementAttribute("value"));
+            Console.WriteLine("Get Value:\t" + coreTools.GetProperty("value"));
+            Console.WriteLine("Get Value:\t" + coreTools.GetAttribute("placeholder"));
             Thread.Sleep(5000);
 
 
