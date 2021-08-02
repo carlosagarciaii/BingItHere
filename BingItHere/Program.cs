@@ -29,15 +29,24 @@ namespace BingItHere
 
 
             coreTools.NavTo("https://www.seleniumeasy.com/test/basic-first-form-demo.html");
-            coreTools.FindElement("user_message", "id",false);
+            coreTools.FindElement("at-cv-lightbox-close", "id", false);
+            coreTools.Click();
+            Thread.Sleep(1000);
+            coreTools.FindElement("user-message", "id",true);
 
-
+            Thread.Sleep(3000);
+            coreTools.SendKeys("    This is my test   I Test   ");
             Thread.Sleep(5000);
+
+
+            Console.WriteLine("Get Value:\t" + coreTools.GetElementAttribute("value"));
+            Thread.Sleep(5000);
+
 
             coreTools.NavTo("http://www.ltaat.com");
 
             Console.WriteLine("Find Element");
-            //            element = coreTools.FindElement("//a[text()='About the Founder']");
+
             coreTools.FindElement("//a[text()='About the Founder']");
             element = coreTools.Element;
             Console.WriteLine(element.GetAttribute("innerText"));

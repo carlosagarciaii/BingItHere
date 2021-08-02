@@ -7,6 +7,8 @@ using OpenQA.Selenium.Edge;
 using System.IO;
 using System.Threading;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
 
 namespace CoreTools
 {
@@ -364,12 +366,14 @@ namespace CoreTools
         /// <br>-- -- -- css / cssselector</br>
         /// <br>-- -- -- name</br>
         /// <br>-- -- -- id</br>
+        /// <br>-- isRequired = Whether element is required. (Default: true)</br>
         /// <br>-- waitForElement = Wait for element to appear on page (true {default}/false)</br>
         /// <br>-- waitTimeSec = Number of seconds to wait for the element (default = 20)</br>
         /// </para>
         /// </summary>
         /// <param name="elementLocator"></param>
         /// <param name="locatorStrategy"></param>
+        /// <param name="isRequired"></param>
         /// <param name="waitForElement"></param>
         /// <param name="waitTimeSec"></param>
         /// <returns></returns>
@@ -558,6 +562,38 @@ namespace CoreTools
 
         }
 
+
+        /// <summary>
+        /// Sends keys to the element
+        /// <para>sendValue = the text to send
+        /// <br>doTrim = Trim all beginning and ending white space as well as removing double spaces</br></para>
+        /// </summary>
+        /// <param name="sendValue"></param>
+        /// <param name="doTrim"></param>
+        public void SendKeys(string sendValue,bool doTrim = true)
+        {
+            string funcName = "SendKeys";
+
+            if (doTrim)
+            {
+                // Remove Double Spacing
+                sendValue = Regex.Replace(sendValue,"\\s+"," ");
+                // Left Trim/Right Trim
+                sendValue = sendValue.Trim();
+            }
+
+            try
+            {
+                Element.SendKeys(sendValue);
+            }
+            catch(Exception e)
+            {
+                LogMsg = $"Unable to Send text [{sendValue}] to Element [{Element}]\n{e}";
+                logger.Write(LogMsg, funcName, CTConstants.LOG_ERROR);
+                throw new Exception(LogMsg);
+            }
+
+        }
 
 
 
