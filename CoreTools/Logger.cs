@@ -8,14 +8,34 @@ namespace CoreTools
 {
     public  class Logger
     {
-        private LogLevel MyLogLevel { get; set; }
+        private LogLevel HighestLogLevel { get; set; }
+        private string LogFileName { get; set; }
 
-        public Logger(LogLevel myLogLevel = null)
+
+        /// <summary>
+        /// Constructor for Logger
+        /// <para>-- highestLogLevel2Set = The highest Log Level to set for the Logger Instance. 
+        /// <br> --- --- NOTE: All levels lower than the set level will be ignored by this Logger Instance</br>
+        /// <br>-- logFileName = The name for the LogFile. (Default defined by CTConstants.LOGFILE_NAME) </br></para>
+        /// </summary>
+        /// <param name="highestLogLevel2Set"></param>
+        /// <param name="logFileName"></param>
+        public Logger(LogLevel highestLogLevel2Set = null,string logFileName = CTConstants.LOGFILE_NAME)
         {
-            MyLogLevel = (myLogLevel == null) ? CTConstants.LOG_INFO : myLogLevel;
+            HighestLogLevel = (highestLogLevel2Set == null) ? CTConstants.LOG_INFO : highestLogLevel2Set;
+            LogFileName = logFileName;
 
         }
 
+        /// <summary>
+        /// Writes to the LogFile and Console.
+        /// <para>- message = the message to output
+        /// <br>- functionName = The name of the function to tag in the log file</br>
+        /// <br>- severityLevel = The severity of the message</br></para>
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="functionName"></param>
+        /// <param name="severityLevel"></param>
         public void Write(string message, string functionName,  LogLevel severityLevel = null)
         {
             if (severityLevel == null)
@@ -23,14 +43,12 @@ namespace CoreTools
                 severityLevel = CTConstants.LOG_INFO;
             }
 
-
-
             string LogMessage = $"{GetTimeStamp()}  |  {severityLevel.Name}  |  {functionName}  |  {message}";
-            string targetFile = $"{GetWorkingDir()}/{CTConstants.LOGFILE_FOLDER_NAME}/{CTConstants.LOGFILE_NAME}";
-            string logFileFolder = $"{ GetWorkingDir() }/{ CTConstants.LOGFILE_FOLDER_NAME}";
+            string targetFile = $"{GetWorkingDir()}/{CTConstants.LOGFILE_FOLDER_NAME}/{LogFileName}";
+            string logFileFolder = $"{ GetWorkingDir() }/{LogFileName}";
 
 
-            if (MyLogLevel.Value >= severityLevel.Value)
+            if (HighestLogLevel.Value >= severityLevel.Value)
             {
 
                 //Find or Create Logfile Directory

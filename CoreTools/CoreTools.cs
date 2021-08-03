@@ -21,7 +21,7 @@ namespace CoreTools
 		//  ---------------------------------------------------------------
 
 
-		private Logger logger = new Logger(CTConstants.LOG_DEBUG);
+		private Logger logger = new Logger(CTConstants.LOG_INFO);
 
 		string LogMsg;
 		private IWebDriver Driver { get; set; }
@@ -209,14 +209,18 @@ namespace CoreTools
 		/// <br>---Google, Chrome</br>
 		/// <br>---IE, IExplore</br>
 		/// <br>---Edge, MSEdge</br>
-		/// <br>loggingLevel = The highest level to log</br>
+		/// <br>loggingLevel = The highest severity to log (default: INFO)</br>
+		/// <br>logFileName = The name for the LogFile (Default defined in CTConstants.LOGFILE_NAME)</br>
 		/// </para>
 		/// </summary>
 		/// <param name="browserName"></param>
-		public CoreTools(string browserName)
+		/// <param name="setLogLevel"></param>
+		/// <param name="logFileName"></param>
+		public CoreTools(string browserName,LogLevel setLogLevel = null,string logFileName = CTConstants.LOGFILE_NAME)
 		{
-		
 			string funcName = "OpenBrowser";
+			logger = new Logger((setLogLevel == null) ? CTConstants.LOG_INFO: setLogLevel,logFileName);
+
 			logger.Write("Opening Browser", funcName, CTConstants.LOG_INFO);
 			BrowserName = browserName;
 
@@ -225,8 +229,35 @@ namespace CoreTools
 			SetDriverFilePath();
 
 			Driver = CreateSession();
+		}
 
+		/// <summary>
+		/// Instantiates the class and Opens the browser session 
+		/// <para><br>browserName = the name of the browser to open</br>
+		/// <br>-Options:</br>
+		/// <br>---FireFox, FF</br>
+		/// <br>---Google, Chrome</br>
+		/// <br>---IE, IExplore</br>
+		/// <br>---Edge, MSEdge</br>
+		/// <br>logFileName = The name for the LogFile (Default defined in CTConstants.LOGFILE_NAME)</br>
+		/// </para>
+		/// </summary>
+		/// <param name="browserName"></param>
+		/// <param name="logFileName"></param>
 
+		public CoreTools(string browserName,  string logFileName = CTConstants.LOGFILE_NAME)
+		{
+			string funcName = "OpenBrowser";
+			logger = new Logger(CTConstants.LOG_INFO , logFileName);
+
+			logger.Write("Opening Browser", funcName, CTConstants.LOG_INFO);
+			BrowserName = browserName;
+
+			SetDriverFileName();
+
+			SetDriverFilePath();
+
+			Driver = CreateSession();
 		}
 
 
@@ -385,6 +416,7 @@ namespace CoreTools
 			Element  = null;
 
 			SetLocator(elementLocator, locatorStrategy);
+			logger.Write($"Finding Element [{elementLocator}]",funcName,CTConstants.LOG_DEBUG);
 
 			int waitLoopCounter = (waitTimeSec < 1) ? 1 : waitTimeSec;
 			for (int waitCount = waitLoopCounter; waitCount > 0; waitCount--)

@@ -13,14 +13,13 @@ namespace BingItHere
 
         static void Main(string[] args)
         {
-
+            
             
             IWebElement element;
             List<IWebElement> Elements = new List<IWebElement>();
 
             Console.WriteLine("Hello World!");
-            CoreTools.CoreTools coreTools = new CoreTools.CoreTools("ff");
-
+            CoreTools.CoreTools coreTools = new CoreTools.CoreTools("ff","_TestLog.log");
             coreTools.NavTo("https://www.seleniumeasy.com/test/basic-checkbox-demo.html");
             coreTools.FindElement("isAgeSelected", "id");
             Console.WriteLine("Get Value:\t" + coreTools.GetProperty("value"));
