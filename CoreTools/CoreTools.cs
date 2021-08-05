@@ -34,6 +34,31 @@ namespace CoreTools
 
 
 
+		/// <summary>
+		/// Adds a random wait duration to simulate human hesitancy.
+		/// <para>minWait = Minimum wait time in seconds (default is defined in CTConstants.DEFAULT_MINIMUM_WAIT_TIME)
+		/// <br>maxWait = Maximum wait time in seconds (default is defined in CTConstants.DEFAULT_MAXIMUM_WAIT_TIME)</br></para>
+		/// </summary>
+		/// <param name="minWait"></param>
+		/// <param name="maxWait"></param>
+
+		public void SimulateHumanWait(int minWait = CTConstants.DEFAULT_MINIMUM_WAIT_TIME, int maxWait = CTConstants.DEFAULT_MAXIMUM_WAIT_TIME)
+		{
+			string funcName = "SimulateHumanWait";
+			try
+			{
+				Random randNum = new Random();
+				int waitTime = randNum.Next(minWait, maxWait);
+				Thread.Sleep(waitTime * 1000);
+			}
+			catch (Exception e)
+			{
+				LogMsg = $"Failed to Initiate Sleep Timer. minWait {minWait.ToString()} | maxWait {maxWait.ToString()}\n{e}";
+				logger.Write(LogMsg, funcName, CTConstants.LOG_ERROR);
+				throw new Exception(LogMsg);
+			}
+		}
+
 
 		//  ---------------------------------------------------------------
 		//  CREATING A SESSION
@@ -518,10 +543,10 @@ namespace CoreTools
 			}
             else
             {
-				string ListOfElements = "";
+				string ListOfElements = "\n";
 				foreach (var element in Elements)
                 {
-					ListOfElements += $"|{element.ToString()}|";
+					ListOfElements += $"|{element.ToString()}|\n";
                 }
 				LogMsg = $"Elements Found:\t{Elements.Count.ToString()}\n\t{ListOfElements}";
 				logger.Write(LogMsg, funcName, CTConstants.LOG_DEBUG);
@@ -548,7 +573,7 @@ namespace CoreTools
 			string funcName = "Click";
 			try
 			{
-				logger.Write("Clicking on Element.",funcName,CTConstants.LOG_WARNING);
+				logger.Write("Clicking on Element.",funcName,CTConstants.LOG_DEBUG);
 				Element.Click();
 			}
 			catch (Exception e)
@@ -666,30 +691,17 @@ namespace CoreTools
 		}
 
 
-		/// <summary>
-		/// Adds a random wait duration to simulate human hesitancy.
-		/// <para>minWait = Minimum wait time in seconds (default is defined in CTConstants.DEFAULT_MINIMUM_WAIT_TIME)
-		/// <br>maxWait = Maximum wait time in seconds (default is defined in CTConstants.DEFAULT_MAXIMUM_WAIT_TIME)</br></para>
-		/// </summary>
-		/// <param name="minWait"></param>
-		/// <param name="maxWait"></param>
+		public void SetAttribute(string attribute2Set,string value2Set)
+        {
+			throw new Exception("Not Yet Implemented");
+			string funcName = "SetAttribute";
+			var testItem = ((IJavaScriptExecutor)Driver).ExecuteScript("");
+			
 
-		public void SimulateHumanWait(int minWait=CTConstants.DEFAULT_MINIMUM_WAIT_TIME,int maxWait = CTConstants.DEFAULT_MAXIMUM_WAIT_TIME)
-		{
-			string funcName = "SimulateHumanWait";
-			try
-			{
-				Random randNum = new Random();
-				int waitTime = randNum.Next(minWait, maxWait);
-				Thread.Sleep(waitTime * 1000);
-			}
-			catch (Exception e)
-            {
-				LogMsg = $"Failed to Initiate Sleep Timer. minWait {minWait.ToString()} | maxWait {maxWait.ToString()}\n{e}";
-				logger.Write(LogMsg,funcName,CTConstants.LOG_ERROR);
-				throw new Exception(LogMsg);
-            }
 		}
+
+
+
 
 
 	}
