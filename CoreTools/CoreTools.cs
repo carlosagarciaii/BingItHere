@@ -98,7 +98,6 @@ namespace CoreTools
 		private void SetDriverFilePath()
 		{
 			string funcName = "SetDriverFilePath";
-			string msg = "";
 			bool isFoundDriverDirPath = false;
 			string fullDriverFilePath;
 
@@ -120,14 +119,14 @@ namespace CoreTools
 			}
 			if (!isFoundDriverDirPath)
 			{
-				msg = "EXCEPTION:\n\tDriver Directory Cannot Be Found";
-				logger.Write(msg, funcName, CTConstants.LOG_CRITICAL);
-				throw new Exception(msg);
+				LogMsg = "EXCEPTION:\n\tDriver Directory Cannot Be Found";
+				logger.Write(LogMsg, funcName, CTConstants.LOG_CRITICAL);
+				throw new Exception(LogMsg);
 			}
 
-			msg = "EXCEPTION:\n\tDriver File Cannot Be Found";
-			logger.Write(msg, funcName, CTConstants.LOG_CRITICAL);
-			throw new Exception(msg);
+			LogMsg = "EXCEPTION:\n\tDriver File Cannot Be Found";
+			logger.Write(LogMsg, funcName, CTConstants.LOG_CRITICAL);
+			throw new Exception(LogMsg);
 		}
 
 
@@ -172,33 +171,6 @@ namespace CoreTools
 
 		}
 
-
-		/*
-		/// <summary>
-		/// Opens the browser session. 
-		/// <para><br>browserName = the name of the browser to open</br>
-		/// <br>-Options:</br>
-		/// <br>---FireFox, FF</br>
-		/// <br>---Google, Chrome</br>
-		/// <br>---IE, IExplore</br>
-		/// <br>---Edge, MSEdge</br></para>
-		/// </summary>
-		/// <param name="browserName"></param>
-		public void OpenBrowser(string browserName)
-		{
-			string funcName = "OpenBrowser";
-			logger.Write("Opening Browser",funcName,CTConstants.LOG_INFO);
-			BrowserName = browserName;
-
-			SetDriverFileName();
-
-			SetDriverFilePath();
-
-			Driver = CreateSession();
-
-
-		}
-		*/
 
 
 		/// <summary>
@@ -260,6 +232,34 @@ namespace CoreTools
 			Driver = CreateSession();
 		}
 
+		/// <summary>
+		/// Instantiates the class and Opens the browser session 
+		/// <para><br>browserName = the name of the browser to open</br>
+		/// <br>-Options:</br>
+		/// <br>---FireFox, FF</br>
+		/// <br>---Google, Chrome</br>
+		/// <br>---IE, IExplore</br>
+		/// <br>---Edge, MSEdge</br>
+		/// </para>
+		/// </summary>
+		/// <param name="browserName"></param>
+		public CoreTools(string browserName)
+		{
+			string funcName = "OpenBrowser";
+			logger = new Logger( CTConstants.LOG_INFO);
+
+			logger.Write("Opening Browser", funcName, CTConstants.LOG_INFO);
+			BrowserName = browserName;
+
+			SetDriverFileName();
+
+			SetDriverFilePath();
+
+			Driver = CreateSession();
+		}
+
+
+
 
 		//  ---------------------------------------------------------------
 		//  CLOSING A SESSION
@@ -319,7 +319,7 @@ namespace CoreTools
 					{
 						Thread.Sleep(1000);
 						ReadyState = (string)((IJavaScriptExecutor)Driver).ExecuteScript("return document.readyState;");
-						logger.Write($"Ready State:\t{ReadyState}", funcName, CTConstants.LOG_INFO);
+						logger.Write($"Ready State:\t{ReadyState}", funcName, CTConstants.LOG_DEBUG);
 						if (ReadyState.ToLower() == "complete") break;
 					}
 					catch (Exception e)
@@ -367,16 +367,20 @@ namespace CoreTools
 			switch (locatorStrategy.ToLower())
 			{
 				case "xpath":
+					LogMsg = $"Locator Strategy:\tXPATH\tElement:\t{elementLocator}";
 					Locator = By.XPath(elementLocator);
 					break;
 				case "css":
 				case "cssselector":
+					LogMsg = $"Locator Strategy:\tCssSelector\tElement:\t{elementLocator}";
 					Locator = By.CssSelector(elementLocator);
 					break;
 				case "id":
+					LogMsg = $"Locator Strategy:\tID\tElement:\t{elementLocator}";
 					Locator = By.Id(elementLocator);
 					break;
 				case "name":
+					LogMsg = $"Locator Strategy:\tName\tElement:\t{elementLocator}";
 					Locator = By.Name(elementLocator);
 					break;
 				default:
@@ -385,8 +389,7 @@ namespace CoreTools
 					throw new Exception(LogMsg);
 
 			}
-
-
+			logger.Write(LogMsg, funcName, CTConstants.LOG_DEBUG);
 		}
 
 		/// <summary>
@@ -408,7 +411,6 @@ namespace CoreTools
 		/// <param name="waitForElement"></param>
 		/// <param name="waitTimeSec"></param>
 		/// <returns></returns>
-
 
 		public void FindElement(string elementLocator, string locatorStrategy = "xpath",bool isRequired = true,bool waitForElement = true, int waitTimeSec = 20)
 		{
@@ -475,7 +477,6 @@ namespace CoreTools
 		/// <param name="waitTimeSec"></param>
 		/// <returns></returns>
 
-
 		public void FindElements(string elementLocator, string locatorStrategy = "xpath", bool isRequired = true, bool waitForElement = true, int waitTimeSec = 20)
 		{
 
@@ -515,6 +516,16 @@ namespace CoreTools
 					logger.Write(LogMsg, funcName, CTConstants.LOG_WARNING);
 				}
 			}
+            else
+            {
+				string ListOfElements = "";
+				foreach (var element in Elements)
+                {
+					ListOfElements += $"|{element.ToString()}|";
+                }
+				LogMsg = $"Elements Found:\t{Elements.Count.ToString()}\n\t{ListOfElements}";
+				logger.Write(LogMsg, funcName, CTConstants.LOG_DEBUG);
+            }
 
 		}
 
