@@ -696,14 +696,13 @@ namespace CoreTools
 
 		public void SetAttribute(string attribute2Set,string value2Set)
         {
-			return;
+			
 			string funcName = "SetAttribute";
 			string jScript = "";
 
 			try
 			{
-				jScript = "var myElement = \"" + Element.ToString() + "\" ; " + Environment.NewLine +
-								" myElement.setAttribute(\"" + attribute2Set + "\", \"" + value2Set + "\" );";
+
 				logger.Write($"JavaScript to Run:\n{jScript}", funcName, CTConstants.LOG_DEBUG);
 
 				var testItem = ((IJavaScriptExecutor)Driver).ExecuteScript(jScript);
@@ -720,7 +719,19 @@ namespace CoreTools
 
 
 
+		public string LocateByJS()
+		{
+			throw new Exception("Not Yet Implemented");
+			string funcName = "LocateByJS";
+			string jsOutString = "";
+			switch (LocatorStrategy.ToLower()) {
+				case ("xpath"):
+					jsOutString = $"document.evaluate(\"{ElementSelector}\", document,null, XPathResult.ANY_TYPE,null).FIRST_ORDERED_NODE_TYPE";
+					break;
 
+			}
+			return jsOutString;
+		}
 
 	}
 }
