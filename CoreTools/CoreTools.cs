@@ -28,9 +28,11 @@ namespace CoreTools
 		private string BrowserName { get; set; }
 		private string DriverFileName { get; set; }
 		private string DriverFilePath { get; set; }
-		
+		private string ElementSelector { get; set; }
+		private string LocatorStrategy { get; set; }
+		private By ElementLocator { get; set; }
 		public IWebElement Element { get; set; }
-		public List<IWebElement> Elements { get; set; }
+		public List<IWebElement> ElementList { get; set; }
 
 
 
@@ -371,11 +373,10 @@ namespace CoreTools
 		//  ---------------------------------------------------------------
 
 
-		By Locator;
 
 		/// <summary>
 		/// Sets the Locator and strategy to use.
-		/// <para><br>-- elementLocator = The locator for the element (IE: #id, "//a", etc)</br>
+		/// <para><br>-- elementSelector = The selector for the element (IE: #id, "//a", etc)</br>
 		/// <br>-- locatorStrategy = The Strategy to use to locate the element </br>
 		/// <br>-- -- -- xpath (default)</br>
 		/// <br>-- -- -- css / cssselector</br>
@@ -383,33 +384,35 @@ namespace CoreTools
 		/// <br>-- -- -- id</br>
 		/// </para>
 		/// </summary>
-		/// <param name="elementLocator"></param>
+		/// <param name="elementSelector"></param>
 		/// <param name="locatorStrategy"></param>
 
-		public void SetLocator(string elementLocator, string locatorStrategy = "xpath")
+		public void SetLocator(string elementSelector, string locatorStrategy = "xpath")
 		{
 			string funcName = "SetLocator";
-			switch (locatorStrategy.ToLower())
+			ElementSelector = elementSelector;
+			LocatorStrategy = locatorStrategy;
+			switch (LocatorStrategy.ToLower())
 			{
 				case "xpath":
-					LogMsg = $"Locator Strategy:\tXPATH\tElement:\t{elementLocator}";
-					Locator = By.XPath(elementLocator);
+					LogMsg = $"Locator Strategy:\tXPATH\tElement:\t{elementSelector}";
+					ElementLocator = By.XPath(elementSelector);
 					break;
 				case "css":
 				case "cssselector":
-					LogMsg = $"Locator Strategy:\tCssSelector\tElement:\t{elementLocator}";
-					Locator = By.CssSelector(elementLocator);
+					LogMsg = $"Locator Strategy:\tCssSelector\tElement:\t{elementSelector}";
+					ElementLocator = By.CssSelector(elementSelector);
 					break;
 				case "id":
-					LogMsg = $"Locator Strategy:\tID\tElement:\t{elementLocator}";
-					Locator = By.Id(elementLocator);
+					LogMsg = $"Locator Strategy:\tID\tElement:\t{elementSelector}";
+					ElementLocator = By.Id(elementSelector);
 					break;
 				case "name":
-					LogMsg = $"Locator Strategy:\tName\tElement:\t{elementLocator}";
-					Locator = By.Name(elementLocator);
+					LogMsg = $"Locator Strategy:\tName\tElement:\t{elementSelector}";
+					ElementLocator = By.Name(elementSelector);
 					break;
 				default:
-					LogMsg = $"EXCEPTION\tLOCATOR ERROR\nError:\tFE00001\n\tThe Locator Stragety Provided does not match a recognized strategy.\n\tLocator Strategy Provided:\t{locatorStrategy}\n\tLocator:\t{elementLocator}";
+					LogMsg = $"EXCEPTION\tLOCATOR ERROR\nError:\tFE00001\n\tThe Locator Stragety Provided does not match a recognized strategy.\n\tLocator Strategy Provided:\t{locatorStrategy}\n\tLocator:\t{elementSelector}";
 					logger.Write(LogMsg,funcName,CTConstants.LOG_CRITICAL);
 					throw new Exception(LogMsg);
 
@@ -419,7 +422,7 @@ namespace CoreTools
 
 		/// <summary>
 		/// Locates a single Element on the page that matches the locator and returns an IWebElement object
-		/// <para><br>-- elementLocator = The locator for the element (IE: #id, "//a", etc)</br>
+		/// <para><br>-- elementSelector = The locator for the element (IE: #id, "//a", etc)</br>
 		/// <br>-- locatorStrategy = The Strategy to use to locate the element </br>
 		/// <br>-- -- -- xpath (default)</br>
 		/// <br>-- -- -- css / cssselector</br>
@@ -430,20 +433,20 @@ namespace CoreTools
 		/// <br>-- waitTimeSec = Number of seconds to wait for the element (default = 20)</br>
 		/// </para>
 		/// </summary>
-		/// <param name="elementLocator"></param>
+		/// <param name="elementSelector"></param>
 		/// <param name="locatorStrategy"></param>
 		/// <param name="isRequired"></param>
 		/// <param name="waitForElement"></param>
 		/// <param name="waitTimeSec"></param>
 		/// <returns></returns>
 
-		public void FindElement(string elementLocator, string locatorStrategy = "xpath",bool isRequired = true,bool waitForElement = true, int waitTimeSec = 20)
+		public void FindElement(string elementSelector, string locatorStrategy = "xpath",bool isRequired = true,bool waitForElement = true, int waitTimeSec = 20)
 		{
 			string funcName = "FindElement";
 			Element  = null;
 
-			SetLocator(elementLocator, locatorStrategy);
-			logger.Write($"Finding Element [{elementLocator}]",funcName,CTConstants.LOG_DEBUG);
+			SetLocator(elementSelector, locatorStrategy);
+			logger.Write($"Finding Element [{elementSelector}]",funcName,CTConstants.LOG_DEBUG);
 
 			int waitLoopCounter = (waitTimeSec < 1) ? 1 : waitTimeSec;
 			for (int waitCount = waitLoopCounter; waitCount > 0; waitCount--)
@@ -451,12 +454,12 @@ namespace CoreTools
 				Thread.Sleep(1000);
 				try
 				{
-					Element = Driver.FindElement(Locator);
+					Element = Driver.FindElement(ElementLocator);
 					break;
 				}
 				catch
 				{
-					LogMsg = $"Locator not found:\t{elementLocator}\t|\t{locatorStrategy}";
+					LogMsg = $"Locator not found:\t{elementSelector}\t|\t{locatorStrategy}";
 
 					logger.Write(LogMsg,funcName,CTConstants.LOG_WARNING);
 
@@ -465,7 +468,7 @@ namespace CoreTools
 
 			if (Element == null)
 			{
-				LogMsg = $"Unable to Locate Element:\t{Locator} using strategy {locatorStrategy}.";
+				LogMsg = $"Unable to Locate Element:\t{ElementSelector} using strategy {locatorStrategy}.";
 				if (isRequired)
 				{
 					logger.Write(LogMsg, funcName, CTConstants.LOG_CRITICAL);
@@ -495,21 +498,21 @@ namespace CoreTools
 		/// <br>-- waitTimeSec = Number of seconds to wait for the element (default = 20)</br>
 		/// </para>
 		/// </summary>
-		/// <param name="elementLocator"></param>
+		/// <param name="elementSelector"></param>
 		/// <param name="locatorStrategy"></param>
 		/// <param name="isRequired"></param>
 		/// <param name="waitForElement"></param>
 		/// <param name="waitTimeSec"></param>
 		/// <returns></returns>
 
-		public void FindElements(string elementLocator, string locatorStrategy = "xpath", bool isRequired = true, bool waitForElement = true, int waitTimeSec = 20)
+		public void FindElements(string elementSelector, string locatorStrategy = "xpath", bool isRequired = true, bool waitForElement = true, int waitTimeSec = 20)
 		{
 
 			string funcName = "FindElements";
-			Elements = new List<IWebElement>();
+			ElementList = new List<IWebElement>();
 
 
-			SetLocator(elementLocator, locatorStrategy);
+			SetLocator(elementSelector, locatorStrategy);
 
 			int waitLoopCounter = (waitTimeSec < 1) ? 1 : waitTimeSec;
 			for (int waitCount = waitLoopCounter; waitCount > 0; waitCount--)
@@ -517,21 +520,21 @@ namespace CoreTools
 				Thread.Sleep(1000);
 				try
 				{
-					Elements = new List<IWebElement>(Driver.FindElements(Locator));
+					ElementList = new List<IWebElement>(Driver.FindElements(ElementLocator));
 
 					break;
 				}
 				catch
 				{
-					LogMsg = $"Locator not found:\t{elementLocator}\t|\t{locatorStrategy}";
+					LogMsg = $"Locator not found:\t{elementSelector}\t|\t{locatorStrategy}";
 					logger.Write(LogMsg, funcName, CTConstants.LOG_WARNING);
 
 				}
 			}
 
-			if (Elements.Count == 0)
+			if (ElementList.Count == 0)
 			{
-				LogMsg = $"Unable to Locate Element:\t{Locator} using strategy {locatorStrategy}.";
+				LogMsg = $"Unable to Locate Element:\t{elementSelector} using strategy {locatorStrategy}.";
 				if (isRequired) {
 					logger.Write(LogMsg, funcName, CTConstants.LOG_ERROR);
 					throw new Exception(LogMsg); 
@@ -544,11 +547,11 @@ namespace CoreTools
             else
             {
 				string ListOfElements = "\n";
-				foreach (var element in Elements)
+				foreach (var element in ElementList)
                 {
 					ListOfElements += $"|{element.ToString()}|\n";
                 }
-				LogMsg = $"Elements Found:\t{Elements.Count.ToString()}\n\t{ListOfElements}";
+				LogMsg = $"Elements Found:\t{ElementList.Count.ToString()}\n\t{ListOfElements}";
 				logger.Write(LogMsg, funcName, CTConstants.LOG_DEBUG);
             }
 
@@ -693,10 +696,25 @@ namespace CoreTools
 
 		public void SetAttribute(string attribute2Set,string value2Set)
         {
-			throw new Exception("Not Yet Implemented");
+			return;
 			string funcName = "SetAttribute";
-			var testItem = ((IJavaScriptExecutor)Driver).ExecuteScript("");
-			
+			string jScript = "";
+
+			try
+			{
+				jScript = "var myElement = \"" + Element.ToString() + "\" ; " + Environment.NewLine +
+								" myElement.setAttribute(\"" + attribute2Set + "\", \"" + value2Set + "\" );";
+				logger.Write($"JavaScript to Run:\n{jScript}", funcName, CTConstants.LOG_DEBUG);
+
+				var testItem = ((IJavaScriptExecutor)Driver).ExecuteScript(jScript);
+			}
+			catch (Exception e)
+            {
+				LogMsg = $"Failed to Run JavaScript:\n{jScript}\n{e}";
+				logger.Write(LogMsg, funcName, CTConstants.LOG_ERROR);
+				throw new Exception(LogMsg);
+
+            }
 
 		}
 

@@ -45,12 +45,16 @@ namespace BingItHere
 
             coreTools.NavTo("http://www.ltaat.com");
 
-            Console.WriteLine("Find Element");
 
+            coreTools.FindElement("//*[contains(text(),'LTAAT')]");
+            coreTools.SetAttribute("class", "");
+            coreTools.SetAttribute("style", "text-align:right,font-size:200");
+
+            Console.WriteLine("Attribute:\t" + coreTools.GetAttribute("style"));
+
+            
             coreTools.FindElement("//a[text()='About the Founder']");
             element = coreTools.Element;
-            Console.WriteLine(element.GetAttribute("innerText"));
-            Console.WriteLine(element.GetAttribute("innerHTML"));
             
             coreTools.FindElements("//a");
             coreTools.Click();
