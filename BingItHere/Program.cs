@@ -14,12 +14,10 @@ namespace BingItHere
         static void Main(string[] args)
         {
             
-            
-            
 
             CoreTools.CoreTools coreTools = new CoreTools.CoreTools("ff",CoreTools.CTConstants.LOG_DEBUG);
             
-            /*
+            
                 coreTools.NavTo("https://www.seleniumeasy.com/test/basic-checkbox-demo.html");
                 coreTools.FindElement("isAgeSelected", "id");
                 Console.WriteLine("Get Value:\t" + coreTools.GetProperty("value"));
@@ -41,7 +39,7 @@ namespace BingItHere
                 Console.WriteLine("Get Value:\t" + coreTools.GetProperty("value"));
                 Console.WriteLine("Get Value:\t" + coreTools.GetAttribute("placeholder"));
                 Thread.Sleep(5000);
-            */
+//            */
 
             coreTools.NavTo("http://www.ltaat.com");
 
@@ -54,7 +52,7 @@ namespace BingItHere
 
             
             coreTools.FindElement("//a[text()='About the Founder']");
-            element = coreTools.Element;
+            //element = coreTools.Element;
             
             coreTools.FindElements("//a");
             coreTools.Click();

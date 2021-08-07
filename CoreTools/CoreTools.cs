@@ -83,26 +83,18 @@ namespace CoreTools
 			switch (BrowserName.ToLower())
 			{
 				case "ff":
-					DriverFileName = CTConstants.FIREFOX_DRIVER_NAME;
-					break;
 				case "firefox":
 					DriverFileName = CTConstants.FIREFOX_DRIVER_NAME;
 					break;
 				case "chrome":
-					DriverFileName = CTConstants.CHROME_DRIVER_NAME;
-					break;
 				case "google":
 					DriverFileName = CTConstants.CHROME_DRIVER_NAME;
 					break;
 				case "ie":
-					DriverFileName = CTConstants.IE_DRIVER_NAME;
-					break;
 				case "iexplore":
 					DriverFileName = CTConstants.IE_DRIVER_NAME;
 					break;
 				case "edge":
-					DriverFileName = CTConstants.MSEDGE_DRIVER_NAME;
-					break;
 				case "msedge":
 					DriverFileName = CTConstants.MSEDGE_DRIVER_NAME;
 					break;
@@ -128,6 +120,7 @@ namespace CoreTools
 			bool isFoundDriverDirPath = false;
 			string fullDriverFilePath;
 
+
 			foreach (string driverDirPathItem in CTConstants.DEFAULT_DRIVER_DIRECTORIES)
 			{
 				if (Directory.Exists(driverDirPathItem))
@@ -135,6 +128,8 @@ namespace CoreTools
 					isFoundDriverDirPath = true;
 					logger.Write($"Driver Path Found:\t{DriverFilePath}",funcName,CTConstants.LOG_INFO);
 					fullDriverFilePath = driverDirPathItem + "/" + DriverFileName;
+
+					RenameEdgeDriver(driverDirPathItem);
 
 					if (File.Exists(fullDriverFilePath))
 					{
@@ -157,6 +152,26 @@ namespace CoreTools
 		}
 
 
+		private void RenameEdgeDriver(string driverPath)
+        {
+			string funcName = "RenameEdgeDriver";
+
+			if (!File.Exists(driverPath + "/" + CTConstants.MSEDGE_DRIVER_NAME) && File.Exists(driverPath + "/" + CTConstants.MSEDGE_DRIVER_NAME_LEGACY))
+			{
+				File.Copy(driverPath + "/" + CTConstants.MSEDGE_DRIVER_NAME_LEGACY, driverPath + "/" + CTConstants.MSEDGE_DRIVER_NAME);
+				LogMsg = $"{CTConstants.MSEDGE_DRIVER_NAME} copied as {CTConstants.MSEDGE_DRIVER_NAME_LEGACY} to run application.";
+				logger.Write(LogMsg, funcName, CTConstants.LOG_WARNING);
+			}
+
+			if (!File.Exists(driverPath + "/" + CTConstants.MSEDGE_DRIVER_NAME) && !File.Exists(driverPath + "/" + CTConstants.MSEDGE_DRIVER_NAME_LEGACY))
+            {
+				LogMsg = $"Could not Locate usable EDGE DRIVER. Please place a viable EDGE DRIVER with the name {CTConstants.MSEDGE_DRIVER_NAME} or {CTConstants.MSEDGE_DRIVER_NAME_LEGACY} in the Drivers folder.";
+				logger.Write(LogMsg, funcName, CTConstants.LOG_ERROR);
+            }
+
+
+        }
+
 		/// <summary>
 		/// <para>Creates the IWebDriver session based on the browser selected</para>
 		/// <para>browserName = The name of the browser
@@ -170,32 +185,39 @@ namespace CoreTools
 		private IWebDriver CreateSession()
 		{
 			string funcName = "CreateSession";
-
-			switch (BrowserName.ToLower())
+			try
 			{
-				case "ff":
-					return new FirefoxDriver(DriverFilePath);
-					
-				case "firefox":
-					return new FirefoxDriver(DriverFilePath);
-				case "chrome":
-					return new ChromeDriver(DriverFilePath);
-				case "google":
-					return new ChromeDriver(DriverFilePath);
-				case "ie":
-					return new InternetExplorerDriver(DriverFilePath);
-				case "iexplore":
-					return new InternetExplorerDriver(DriverFilePath);
-				case "edge":
-					return new EdgeDriver(DriverFilePath);
-				case "msedge":
-					return new EdgeDriver(DriverFilePath);
-				default:
-					string LogMsg = "Unable to Locate WebDriver";
-					logger.Write(LogMsg,funcName);
-					throw new Exception(LogMsg);
-			}
+				switch (BrowserName.ToLower())
+				{
+					case "ff":
+						return new FirefoxDriver(DriverFilePath);
 
+					case "firefox":
+						return new FirefoxDriver(DriverFilePath);
+					case "chrome":
+						return new ChromeDriver(DriverFilePath);
+					case "google":
+						return new ChromeDriver(DriverFilePath);
+					case "ie":
+						return new InternetExplorerDriver(DriverFilePath);
+					case "iexplore":
+						return new InternetExplorerDriver(DriverFilePath);
+					case "edge":
+						return new EdgeDriver(DriverFilePath);
+					case "msedge":
+						return new EdgeDriver(DriverFilePath);
+					default:
+						string LogMsg = "Unable to Locate WebDriver";
+						logger.Write(LogMsg, funcName);
+						throw new Exception(LogMsg);
+				}
+			}
+			catch (Exception e)
+            {
+				LogMsg = $"Error while Attempting to Create Session\n{e}";
+				logger.Write(LogMsg,funcName,CTConstants.LOG_CRITICAL);
+				throw new Exception(LogMsg);
+            }
 		}
 
 
@@ -217,17 +239,27 @@ namespace CoreTools
 		/// <param name="logFileName"></param>
 		public CoreTools(string browserName,LogLevel setLogLevel = null,string logFileName = CTConstants.LOGFILE_NAME)
 		{
-			string funcName = "OpenBrowser";
+			string funcName = "CoreTools";
 			logger = new Logger((setLogLevel == null) ? CTConstants.LOG_INFO: setLogLevel,logFileName);
 
 			logger.Write("Opening Browser", funcName, CTConstants.LOG_INFO);
 			BrowserName = browserName;
 
-			SetDriverFileName();
+			try
+			{
+				SetDriverFileName();
 
-			SetDriverFilePath();
+				SetDriverFilePath();
 
-			Driver = CreateSession();
+				Driver = CreateSession();
+				Driver.Manage().Window.Maximize();
+			}
+			catch(Exception e)
+            {
+				LogMsg = $"Error while attempting to create the Browser Session\n{e}";
+				logger.Write(LogMsg, funcName, CTConstants.LOG_CRITICAL);
+				throw new Exception(LogMsg);
+            }
 		}
 
 		/// <summary>
@@ -246,17 +278,28 @@ namespace CoreTools
 
 		public CoreTools(string browserName,  string logFileName = CTConstants.LOGFILE_NAME)
 		{
-			string funcName = "OpenBrowser";
+			string funcName = "CoreTools";
 			logger = new Logger(CTConstants.LOG_INFO , logFileName);
 
 			logger.Write("Opening Browser", funcName, CTConstants.LOG_INFO);
 			BrowserName = browserName;
 
-			SetDriverFileName();
+			try
+			{
+				SetDriverFileName();
 
-			SetDriverFilePath();
+				SetDriverFilePath();
 
-			Driver = CreateSession();
+				Driver = CreateSession();
+
+				Driver.Manage().Window.Maximize();
+			}
+			catch (Exception e)
+			{
+				LogMsg = $"Error while attempting to create the Browser Session\n{e}";
+				logger.Write(LogMsg, funcName, CTConstants.LOG_CRITICAL);
+				throw new Exception(LogMsg);
+			}
 		}
 
 		/// <summary>
@@ -278,11 +321,23 @@ namespace CoreTools
 			logger.Write("Opening Browser", funcName, CTConstants.LOG_INFO);
 			BrowserName = browserName;
 
-			SetDriverFileName();
+			try
+			{
+				SetDriverFileName();
 
-			SetDriverFilePath();
+				SetDriverFilePath();
 
-			Driver = CreateSession();
+				Driver = CreateSession();
+
+				Driver.Manage().Window.Maximize();
+			}
+			catch (Exception e)
+			{
+				LogMsg = $"Error while attempting to create the Browser Session\n{e}";
+				logger.Write(LogMsg, funcName, CTConstants.LOG_CRITICAL);
+				throw new Exception(LogMsg);
+			}
+
 		}
 
 
