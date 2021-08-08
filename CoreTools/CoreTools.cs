@@ -152,8 +152,13 @@ namespace CoreTools
 		}
 
 
+		/// <summary>
+		/// Renames the Edge Driver from msedgedriver.exe to MicrosoftWebDriver.exe
+		/// <para>driverPath = the path to the driver</para>
+		/// </summary>
+		/// <param name="driverPath"></param>
 		private void RenameEdgeDriver(string driverPath)
-        {
+		{
 			string funcName = "RenameEdgeDriver";
 
 			if (!File.Exists(driverPath + "/" + CTConstants.MSEDGE_DRIVER_NAME) && File.Exists(driverPath + "/" + CTConstants.MSEDGE_DRIVER_NAME_LEGACY))
@@ -164,13 +169,13 @@ namespace CoreTools
 			}
 
 			if (!File.Exists(driverPath + "/" + CTConstants.MSEDGE_DRIVER_NAME) && !File.Exists(driverPath + "/" + CTConstants.MSEDGE_DRIVER_NAME_LEGACY))
-            {
+			{
 				LogMsg = $"Could not Locate usable EDGE DRIVER. Please place a viable EDGE DRIVER with the name {CTConstants.MSEDGE_DRIVER_NAME} or {CTConstants.MSEDGE_DRIVER_NAME_LEGACY} in the Drivers folder.";
 				logger.Write(LogMsg, funcName, CTConstants.LOG_ERROR);
-            }
+			}
 
 
-        }
+		}
 
 		/// <summary>
 		/// <para>Creates the IWebDriver session based on the browser selected</para>
@@ -213,11 +218,11 @@ namespace CoreTools
 				}
 			}
 			catch (Exception e)
-            {
+			{
 				LogMsg = $"Error while Attempting to Create Session\n{e}";
 				logger.Write(LogMsg,funcName,CTConstants.LOG_CRITICAL);
 				throw new Exception(LogMsg);
-            }
+			}
 		}
 
 
@@ -255,11 +260,11 @@ namespace CoreTools
 				Driver.Manage().Window.Maximize();
 			}
 			catch(Exception e)
-            {
+			{
 				LogMsg = $"Error while attempting to create the Browser Session\n{e}";
 				logger.Write(LogMsg, funcName, CTConstants.LOG_CRITICAL);
 				throw new Exception(LogMsg);
-            }
+			}
 		}
 
 		/// <summary>
@@ -466,6 +471,14 @@ namespace CoreTools
 					LogMsg = $"Locator Strategy:\tName\tElement:\t{elementSelector}";
 					ElementLocator = By.Name(elementSelector);
 					break;
+				case "tagname":
+					LogMsg = $"Locator Strategy:\tTagName\tElement:\t{elementSelector}";
+					ElementLocator = By.TagName(elementSelector);
+					break;
+				case "classname":
+					LogMsg = $"Locator Strategy:\tClassName\tElement:\t{elementSelector}";
+					ElementLocator = By.ClassName(elementSelector);
+					break;
 				default:
 					LogMsg = $"EXCEPTION\tLOCATOR ERROR\nError:\tFE00001\n\tThe Locator Stragety Provided does not match a recognized strategy.\n\tLocator Strategy Provided:\t{locatorStrategy}\n\tLocator:\t{elementSelector}";
 					logger.Write(LogMsg,funcName,CTConstants.LOG_CRITICAL);
@@ -539,7 +552,6 @@ namespace CoreTools
 		}
 
 
-
 		/// <summary>
 		/// Locates all Elements on the page that match the locator and returns a List of IWebElement objects
 		/// <para><br>-- elementLocator = The locator for the element (IE: #id, "//a", etc)</br>
@@ -599,16 +611,16 @@ namespace CoreTools
 					logger.Write(LogMsg, funcName, CTConstants.LOG_WARNING);
 				}
 			}
-            else
-            {
+			else
+			{
 				string ListOfElements = "\n";
 				foreach (var element in ElementList)
-                {
+				{
 					ListOfElements += $"|{element.ToString()}|\n";
-                }
+				}
 				LogMsg = $"Elements Found:\t{ElementList.Count.ToString()}\n\t{ListOfElements}";
 				logger.Write(LogMsg, funcName, CTConstants.LOG_DEBUG);
-            }
+			}
 
 		}
 
@@ -706,7 +718,7 @@ namespace CoreTools
 				outValue = Element.GetProperty(property2Get);
 			}
 			catch(Exception e)
-            {
+			{
 				LogMsg = $"ERROR:\tThe attribute provided [{property2Get}] does not match a valid type for element [{Element}] . \n{e}";
 				logger.Write(LogMsg, funcName, CTConstants.LOG_ERROR);
 				throw new Exception(LogMsg);
@@ -748,9 +760,13 @@ namespace CoreTools
 
 		}
 
-
+		/// <summary>
+		/// Set the Attribute for an Element
+		/// </summary>
+		/// <param name="attribute2Set"></param>
+		/// <param name="value2Set"></param>
 		public void SetAttribute(string attribute2Set,string value2Set)
-        {
+		{
 			
 			string funcName = "SetAttribute";
 			string jScript = "";
@@ -763,17 +779,21 @@ namespace CoreTools
 				var testItem = ((IJavaScriptExecutor)Driver).ExecuteScript(jScript);
 			}
 			catch (Exception e)
-            {
+			{
 				LogMsg = $"Failed to Run JavaScript:\n{jScript}\n{e}";
 				logger.Write(LogMsg, funcName, CTConstants.LOG_ERROR);
 				throw new Exception(LogMsg);
 
-            }
+			}
 
 		}
 
 
 
+		/// <summary>
+		/// Generates the JavaScript locator script 
+		/// </summary>
+		/// <returns></returns>
 		public string LocateByJS()
 		{
 			throw new Exception("Not Yet Implemented");
@@ -783,8 +803,38 @@ namespace CoreTools
 				case ("xpath"):
 					jsOutString = $"document.evaluate(\"{ElementSelector}\", document,null, XPathResult.ANY_TYPE,null).FIRST_ORDERED_NODE_TYPE";
 					break;
+				case ("css"):
+				case ("cssselector"):
+					jsOutString = $"document.querySelector(\"{ElementSelector}\");";
+					break;
+				case ("id"):
+					jsOutString = $"document.getElementById(\"{ElementSelector}\");";
+					break;
+				case ("name"):
+					jsOutString = $"document.getElementsByName(\"{ElementSelector}\");";
+					break;
+				case ("classname"):
+					jsOutString = $"document.getElementsByClassName(\"{ElementSelector}\");";
+					break;
+				case ("tagname"):
+					jsOutString = $"document.getElementsByTagName(\"{ElementSelector}\");";
+					break;
 
+				default:
+					LogMsg = "Locator Strategy does not match viable options. ";
+					logger.Write(LogMsg,funcName,CTConstants.LOG_ERROR);
+					throw new Exception(LogMsg);
+
+					break;
 			}
+
+			if (jsOutString == "")
+            {
+				LogMsg = $"Location Strategy [{LocatorStrategy}] not supported.";
+				logger.Write(LogMsg, funcName, CTConstants.LOG_ERROR);
+				throw new Exception(LogMsg);
+            }
+
 			return jsOutString;
 		}
 
