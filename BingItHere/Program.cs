@@ -16,8 +16,14 @@ namespace BingItHere
             
 
             CoreTools.CoreTools coreTools = new CoreTools.CoreTools("ff",CoreTools.CTConstants.LOG_DEBUG);
-            
-            
+
+            // Table Tests
+                coreTools.NavTo("https://en.wikipedia.org/wiki/List_of_Nintendo_Entertainment_System_games");
+                coreTools.FindElement("//table[@id='softwarelist']", "xpath");
+                coreTools.Table2Array();
+
+/*
+            //Form Tests
                 coreTools.NavTo("https://www.seleniumeasy.com/test/basic-checkbox-demo.html");
                 coreTools.FindElement("isAgeSelected", "id");
                 Console.WriteLine("Get Value:\t" + coreTools.GetProperty("value"));
@@ -41,6 +47,9 @@ namespace BingItHere
                 Thread.Sleep(5000);
 //            */
 
+
+/*
+            // Find Element Tests
             coreTools.NavTo("http://www.ltaat.com");
 
 
@@ -56,6 +65,8 @@ namespace BingItHere
             
             coreTools.FindElements("//a");
             coreTools.Click();
+
+//  */
 
             Thread.Sleep(10000);
             coreTools.CloseBrowser();

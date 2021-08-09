@@ -829,14 +829,38 @@ namespace CoreTools
 			}
 
 			if (jsOutString == "")
-            {
+			{
 				LogMsg = $"Location Strategy [{LocatorStrategy}] not supported.";
 				logger.Write(LogMsg, funcName, CTConstants.LOG_ERROR);
 				throw new Exception(LogMsg);
-            }
+			}
 
 			return jsOutString;
 		}
+
+
+
+		public void Table2Array()
+        {
+			string funcName = "Table2Array";
+
+			try
+			{
+				string tableHTML = GetAttribute("innerHTML");
+				logger.Write(tableHTML,funcName);
+
+			}
+			catch (Exception e)
+            {
+				LogMsg = $"";
+				logger.Write(LogMsg, funcName, CTConstants.LOG_WARNING);
+				throw new Exception(LogMsg);
+            }
+
+			
+
+        }
+
 
 	}
 }
