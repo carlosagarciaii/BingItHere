@@ -843,6 +843,7 @@ namespace CoreTools
 		public void Table2Array()
         {
 			string funcName = "Table2Array";
+			throw new Exception("Not Yet Implemented");
 
 			try
 			{
