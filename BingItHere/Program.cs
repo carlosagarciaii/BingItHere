@@ -1,5 +1,5 @@
 ﻿using System;
-using CoreTools;
+using CoreToolSet;
 using OpenQA.Selenium;
 using System.Threading;
 using System.Collections.Generic;
@@ -15,14 +15,18 @@ namespace BingItHere
         {
             
 
-            CoreTools.CoreTools coreTools = new CoreTools.CoreTools("ff",CoreTools.CTConstants.LOG_DEBUG);
+            CoreToolSet.CoreTools coreTools = new CoreToolSet.CoreTools("ff",CoreToolSet.CTConstants.LOG_DEBUG);
 
+/*
             // Table Tests
                 coreTools.NavTo("https://en.wikipedia.org/wiki/List_of_Nintendo_Entertainment_System_games");
                 coreTools.FindElement("//table[@id='softwarelist']", "xpath");
                 coreTools.Table2Array();
 
-/*
+
+//  */
+
+
             //Form Tests
                 coreTools.NavTo("https://www.seleniumeasy.com/test/basic-checkbox-demo.html");
                 coreTools.FindElement("isAgeSelected", "id");
@@ -48,7 +52,7 @@ namespace BingItHere
 //            */
 
 
-/*
+
             // Find Element Tests
             coreTools.NavTo("http://www.ltaat.com");
 

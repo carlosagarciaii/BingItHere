@@ -1,13 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using System.Diagnostics;
 using System;
+using System.Diagnostics;
 
 
 
-
-
-namespace CoreTools_Unit
+namespace CoreTools_UnitTest
 {
     [TestClass]
     public class UnitTest1
@@ -15,7 +12,6 @@ namespace CoreTools_Unit
         [TestMethod]
         public void TestMethod1()
         {
-
         }
     }
 }

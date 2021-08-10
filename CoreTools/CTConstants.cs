@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CoreTools
+namespace CoreToolSet
 {
 
     // Yes, some are Statics. This was just a good place to put values that shouldn't change
