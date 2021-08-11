@@ -3,7 +3,6 @@ using System;
 using System.Diagnostics;
 
 
-
 namespace CoreTools_UnitTest
 {
     [TestClass]

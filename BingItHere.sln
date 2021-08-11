@@ -7,11 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BingItHere", "BingItHere\Bi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreToolSet", "CoreTools\CoreToolSet.csproj", "{5BEA5369-0472-4C33-9A6D-F1BE22E10FC0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreTools_UnitTest", "CoreTools_UnitTest\CoreTools_UnitTest.csproj", "{D8BC8477-B66A-482D-AA23-1C6D19B79416}"
-	ProjectSection(ProjectDependencies) = postProject
-		{5BEA5369-0472-4C33-9A6D-F1BE22E10FC0} = {5BEA5369-0472-4C33-9A6D-F1BE22E10FC0}
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,10 +21,6 @@ Global
 		{5BEA5369-0472-4C33-9A6D-F1BE22E10FC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BEA5369-0472-4C33-9A6D-F1BE22E10FC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BEA5369-0472-4C33-9A6D-F1BE22E10FC0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D8BC8477-B66A-482D-AA23-1C6D19B79416}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8BC8477-B66A-482D-AA23-1C6D19B79416}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8BC8477-B66A-482D-AA23-1C6D19B79416}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8BC8477-B66A-482D-AA23-1C6D19B79416}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
